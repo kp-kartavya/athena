@@ -1,0 +1,57 @@
+.theme-switch {
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.switch-track {
+  width: 46px;
+  height: 26px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 3px;
+
+  border-radius: 999px;
+
+  background: var(--input-border);
+
+  transition: background 0.2s ease;
+}
+
+.switch-thumb {
+  width: 20px;
+  height: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--surface);
+  color: var(--text);
+
+  font-size: 12px;
+  line-height: 1;
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.theme-switch.dark .switch-thumb {
+  transform: translateX(20px);
+}
+
+.theme-switch:hover .switch-thumb {
+  transform: scale(1.05);
+}
+
+.theme-switch.dark:hover .switch-thumb {
+  transform: translateX(20px) scale(1.05);
+}

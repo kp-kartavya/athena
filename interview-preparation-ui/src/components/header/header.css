@@ -1,0 +1,257 @@
+.app-header {
+  width: 100%;
+  height: 92px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 34px;
+
+  box-sizing: border-box;
+
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg) 100%);
+
+  border-top: 3px solid #c49a4a;
+  border-bottom: 1px solid var(--border);
+
+  flex-shrink: 0;
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+/* subtle gold glow */
+
+.app-header::after {
+  content: "";
+  position: absolute;
+
+  top: -100px;
+  left: 180px;
+
+  width: 350px;
+  height: 200px;
+
+  background: radial-gradient(
+    circle,
+    rgba(196, 154, 74, 0.08),
+    transparent 70%
+  );
+
+  pointer-events: none;
+}
+
+/* ========================= */
+/* Brand                     */
+/* ========================= */
+
+.header-brand {
+  display: flex;
+  align-items: center;
+
+  min-width: 0;
+
+  z-index: 1;
+}
+
+.athena-logo {
+  width: 62px;
+  height: 62px;
+
+  object-fit: contain;
+
+  flex-shrink: 0;
+}
+
+.brand-separator {
+  width: 1px;
+  height: 48px;
+
+  margin: 0 18px;
+
+  background: #c49a4a;
+
+  opacity: 0.7;
+}
+
+.brand-content {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+
+  min-width: 0;
+}
+
+.brand-name {
+  margin: 0;
+
+  font-family: Georgia, "Times New Roman", serif;
+
+  font-size: 34px;
+  font-weight: 700;
+
+  line-height: 1;
+
+  letter-spacing: 2px;
+
+  color: var(--text);
+}
+
+.brand-subtitle {
+  margin: 7px 0 0;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  line-height: 1;
+
+  letter-spacing: 2px;
+
+  color: var(--text-secondary);
+
+  white-space: nowrap;
+}
+
+/* ========================= */
+/* Developer Badge           */
+/* ========================= */
+
+.developer-badge {
+  display: flex;
+  align-items: center;
+
+  padding: 9px 18px;
+
+  gap: 13px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 999px;
+
+  background: var(--surface);
+
+  z-index: 1;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.developer-badge:hover {
+  border-color: #c49a4a;
+}
+
+.developer-code {
+  color: #c49a4a;
+
+  font-family: Consolas, monospace;
+
+  font-size: 20px;
+  font-weight: 700;
+
+  line-height: 1;
+}
+
+.developer-divider {
+  width: 1px;
+  height: 30px;
+
+  background: var(--border);
+}
+
+.developer-text {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.developer-label {
+  font-size: 9px;
+  font-weight: 500;
+
+  letter-spacing: 1.3px;
+
+  color: var(--text-secondary);
+
+  white-space: nowrap;
+}
+
+.developer-name {
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #c49a4a;
+
+  white-space: nowrap;
+}
+
+/* ========================= */
+/* Responsive                */
+/* ========================= */
+
+@media (max-width: 900px) {
+  .app-header {
+    padding: 0 22px;
+  }
+
+  .brand-name {
+    font-size: 29px;
+  }
+
+  .developer-label {
+    display: none;
+  }
+
+  .developer-divider {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .app-header {
+    height: 78px;
+    padding: 0 16px;
+  }
+
+  .athena-logo {
+    width: 52px;
+    height: 52px;
+  }
+
+  .brand-separator {
+    height: 40px;
+    margin: 0 12px;
+  }
+
+  .brand-name {
+    font-size: 24px;
+    letter-spacing: 1.5px;
+  }
+
+  .brand-subtitle {
+    font-size: 9px;
+    letter-spacing: 1.2px;
+  }
+
+  .developer-code {
+    display: none;
+  }
+
+  .developer-badge {
+    padding: 7px 11px;
+  }
+
+  .developer-name {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 500px) {
+  .developer-badge {
+    display: none;
+  }
+}

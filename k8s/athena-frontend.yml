@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: athena-frontend
+ 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: athena-frontend
+  template:
+    metadata:
+      labels:
+        app: athena-frontend
+    spec:
+      containers:
+        - name: athena-frontend
+          image: athena-frontend:1.0
+          ports:
+            - containerPort: 80

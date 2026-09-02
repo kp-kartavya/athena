@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: athena-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: athena.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: athena-frontend
+                port:
+                  number: 80
+
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: athena-backend
+                port:
+                  number: 8080

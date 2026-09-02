@@ -1,0 +1,63 @@
+STEPS TO BUILD BACKEND
+    - Maven Build → Goals: clean package → Skip Tests
+    - docker build -t athena-backend:1.0 .
+    - Pod Rollout & Restart: kubectl --context=docker-desktop rollout restart deployment athena-backend
+    - Pod Rollout Status: kubectl --context=docker-desktop rollout status deployment athena-backend
+
+
+STEPS TO BUILD FRONTEND
+    - npm run build
+    - docker build -t athena-frontend:1.0 .
+    - Pod Rollout & Restart: kubectl --context=docker-desktop rollout restart deployment athena-frontend
+    - Pod Rollout Status: kubectl --context=docker-desktop rollout status deployment athena-frontend
+
+
+APPLY SERVICE CHANGES
+    - kubectl --context=docker-desktop apply -f k8s/athena-backend-service.yml
+    - kubectl --context=docker-desktop apply -f k8s/athena-frontend-service.yml
+
+
+GET SERVICES
+    - kubectl --context=docker-desktop get services
+
+
+KUBERNETES LEARNING SO FAR
+    - Deployment			: Manages Pods and maintains the desired replica count.
+    - Pod					: The smallest deployable unit in Kubernetes; runs one or more containers.
+    - Service				: Provides a stable network endpoint and routes traffic to matching Pods.
+    - ClusterIP				: Default internal Service type. Used for communication within the cluster.
+    - NodePort				: Exposes a Service externally through a port on the Kubernetes node. We used it initially for local testing.
+	- Ingress				: Defines HTTP/HTTPS routing rules to Services using hosts and paths.
+    - Ingress Controller	: The component that actually processes Ingress rules. Athena uses NGINX Ingress Controller.
+	- Port-forward			: Temporary local tunnel from your machine to a Kubernetes resource. Useful for development/debugging.
+    - Self-healing			: If a Pod managed by a Deployment is deleted or fails, Kubernetes creates a replacement to maintain the desired replica count.
+	- Scaling				: Changing the replica count causes Kubernetes to create or remove Pods to match the desired state.
+
+
+KUBERNETES CONTEXT SAFETY
+	- kubectl config get-contexts		: Lists all Kubernetes contexts and shows which context is currently active.
+	- kubectl config current-context	: Shows the currently selected/default Kubernetes context.
+    - --context=docker-desktop			: Explicitly runs the kubectl command against the local Docker Desktop Kubernetes cluster instead of the currently selected AWS
+										  EKS cluster.
+	- Example							: kubectl --context=docker-desktop get pods
+	
+KUBERNETES COMMANDS
+	- kubectl --context=docker-desktop get nodes									: Shows the Kubernetes nodes and whether they are Ready.
+	- kubectl --context=docker-desktop get pods										: Lists Pods in the current/default namespace and shows their status.
+	- kubectl --context=docker-desktop get pods -A									: Lists Pods across all namespaces.
+	- kubectl --context=docker-desktop get namespace								: Lists all Kubernetes namespaces and their status.
+	- kubectl --context=docker-desktop create namespace ingress-nginx				: Creates a namespace for the NGINX Ingress Controller.
+	- kubectl --context=docker-desktop get ingressclass								: Shows available Ingress classes/controllers, such as nginx.
+	- kubectl --context=docker-desktop apply -f <file>.yml							: Creates or updates Kubernetes resources defined in a YAML/YML manifest.
+	- kubectl --context=docker-desktop get endpoints <service-name>					: Shows the Pod IPs and ports currently behind a Service.
+	- kubectl --context=docker-desktop delete pod <pod-name>						: Deletes a Pod manually. A Deployment can create a replacement automatically.
+	- kubectl --context=docker-desktop scale deployment <name> --replicas=<number>	: Changes the desired number of Pod replicas for a Deployment.
+	- kubectl --context=docker-desktop get deployment <name>						: Shows Deployment status, desired replicas, updated replicas and available replicas.
+	- kubectl --context=docker-desktop describe pod <pod-name>						: Shows detailed information about a Pod, including containers, probes, volumes and Events.
+	- kubectl --context=docker-desktop get configmap <name>							: Shows a Kubernetes ConfigMap.
+	- kubectl --context=docker-desktop exec <pod-name> -- <command>					: Executes a command inside a running Pod/container.
+	- kubectl --context=docker-desktop port-forward service/athena-frontend 8081:80 : Temporarily maps local port 8081 to frontend Service port 80.
+	- kubectl --context=docker-desktop apply -f 									: Installs the NGINX Ingress Controller resources into the Kubernetes cluster.
+	  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.1/deploy/static/provider/cloud/deploy.yaml
+																					
+	

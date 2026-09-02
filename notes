@@ -59,5 +59,7 @@ KUBERNETES COMMANDS
 	- kubectl --context=docker-desktop port-forward service/athena-frontend 8081:80 : Temporarily maps local port 8081 to frontend Service port 80.
 	- kubectl --context=docker-desktop apply -f 									: Installs the NGINX Ingress Controller resources into the Kubernetes cluster.
 	  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.1/deploy/static/provider/cloud/deploy.yaml
+	- kubectl --context=docker-desktop logs <backend-pod-name> --tail 100			: last 100 lines of logs
+	- kubectl --context=docker-desktop logs -f <backend-pod-name> 					: live logs	
 																					
 	

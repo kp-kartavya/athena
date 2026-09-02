@@ -15,6 +15,7 @@ const Chat = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [thinkMode, setThinkMode] = useState(false);
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
+  const [showExpandButton, setShowExpandButton] = useState(false);
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -36,13 +37,20 @@ const Chat = () => {
 
   useEffect(() => {
     const textarea = textareaRef.current;
-
-    if (!textarea) {
-      return;
-    }
+    if (!textarea) return;
 
     textarea.style.height = "auto";
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+
+    const lineHeight = parseInt(
+      window.getComputedStyle(textarea).lineHeight,
+      10,
+    );
+
+    const maxHeight = lineHeight * 3;
+
+    textarea.style.height = `${Math.min(textarea.scrollHeight, maxHeight)}px`;
+
+    setShowExpandButton(textarea.scrollHeight > maxHeight);
   }, [question]);
 
   /*
@@ -217,10 +225,12 @@ const Chat = () => {
               isComposerExpanded ? "composer-expanded" : ""
             }`}
           >
-            <ComposerExpandToggle
-              expanded={isComposerExpanded}
-              onToggle={() => setIsComposerExpanded((prev) => !prev)}
-            />
+            {showExpandButton && (
+              <ComposerExpandToggle
+                isExpanded={isComposerExpanded}
+                onToggle={() => setIsComposerExpanded(!isComposerExpanded)}
+              />
+            )}
 
             <textarea
               ref={textareaRef}

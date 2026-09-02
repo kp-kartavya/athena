@@ -1,0 +1,21 @@
+services:
+
+  backend:
+    image: athena-backend:1.0
+    container_name: athena-backend
+    ports:
+      - "8080:8080"
+    environment:
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_CHAT_MODEL: qwen3:1.7b
+      OLLAMA_EMBEDDING_MODEL: qwen3-embedding:0.6b
+    volumes:
+      - ./interview-preparation-bot/data:/app/data
+
+  frontend:
+    image: athena-frontend:1.0
+    container_name: athena-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend

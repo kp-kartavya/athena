@@ -1,12 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: athena-backend
+  name: athena-postgres
+
 spec:
   selector:
-    app: athena-backend
+    app: athena-postgres
+
   ports:
     - protocol: TCP
-      port: 8080
-      targetPort: 8080
+      port: 5432
+      targetPort: 5432
+
   type: ClusterIP

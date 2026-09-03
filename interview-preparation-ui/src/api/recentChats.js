@@ -1,8 +1,13 @@
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = "";
 
 const handleResponse = async (response, errorMessage) => {
   if (!response.ok) {
     throw new Error(errorMessage);
+  }
+
+  // 204 No Content
+  if (response.status === 204) {
+    return;
   }
 
   return response.json();
@@ -47,7 +52,5 @@ export const deleteChat = async (chatId) => {
     method: "DELETE",
   });
 
-  if (!response.ok && response.status !== 204) {
-    throw new Error("Failed to delete chat");
-  }
+  return handleResponse(response, "Failed to delete chat");
 };

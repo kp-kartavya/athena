@@ -21,7 +21,8 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/chats")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = { "http://localhost:5173", "http://localhost:8081", "http://localhost:30165",
+		"http://athena.localhost" })
 public class ChatHistoryController {
 
 	private final ChatHistoryService chatHistoryService;

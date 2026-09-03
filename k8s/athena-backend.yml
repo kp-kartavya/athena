@@ -4,7 +4,7 @@ metadata:
   name: athena-backend
 
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: athena-backend
@@ -18,10 +18,30 @@ spec:
           image: athena-backend:1.0
           ports:
             - containerPort: 8080
-          env:
-            - name: OLLAMA_BASE_URL
-              value: "http://host.docker.internal:11434"
-            - name: OLLAMA_CHAT_MODEL
-              value: "qwen3:1.7b"
-            - name: OLLAMA_EMBEDDING_MODEL
-              value: "qwen3-embedding:0.6b"
+          envFrom:
+            - configMapRef:
+                name: athena-backend-config
+            - secretRef:
+                name: athena-oauth-secret
+          volumeMounts:
+            - name: athena-data
+              mountPath: /app/data
+            
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      
+      volumes:
+        - name: athena-data
+          persistentVolumeClaim:
+            claimName: athena-backend-pvc

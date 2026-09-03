@@ -4,10 +4,35 @@ metadata:
   name: athena-ingress
 spec:
   ingressClassName: nginx
+
   rules:
     - host: athena.localhost
       http:
         paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: athena-backend
+                port:
+                  number: 8080
+
+          - path: /oauth2
+            pathType: Prefix
+            backend:
+              service:
+                name: athena-backend
+                port:
+                  number: 8080
+
+          - path: /login
+            pathType: Prefix
+            backend:
+              service:
+                name: athena-backend
+                port:
+                  number: 8080
+
           - path: /
             pathType: Prefix
             backend:
@@ -16,6 +41,9 @@ spec:
                 port:
                   number: 80
 
+    - host: localhost
+      http:
+        paths:
           - path: /api
             pathType: Prefix
             backend:
@@ -23,3 +51,27 @@ spec:
                 name: athena-backend
                 port:
                   number: 8080
+
+          - path: /oauth2
+            pathType: Prefix
+            backend:
+              service:
+                name: athena-backend
+                port:
+                  number: 8080
+
+          - path: /login
+            pathType: Prefix
+            backend:
+              service:
+                name: athena-backend
+                port:
+                  number: 8080
+
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: athena-frontend
+                port:
+                  number: 80

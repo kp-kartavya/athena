@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: athena-backend-config
+
+data:
+  OLLAMA_BASE_URL: "http://host.docker.internal:11434"
+  OLLAMA_CHAT_MODEL: "qwen3:1.7b"
+  OLLAMA_EMBEDDING_MODEL: "qwen3-embedding:0.6b"
+  
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://athena-postgres:5432/athena"
+  SPRING_DATASOURCE_USERNAME: "athena"
+  SPRING_DATASOURCE_PASSWORD: "athena123"

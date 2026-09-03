@@ -1,86 +1,56 @@
 package com.interview.service.impl;
 
-import java.io.File;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.interview.model.Chat;
 import com.interview.model.ChatMessage;
+import com.interview.repo.ChatMessageRepository;
+import com.interview.repo.ChatRepository;
 import com.interview.service.ChatHistoryService;
 
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
 public class ChatHistoryServiceImpl implements ChatHistoryService {
-	@Value("${chat.history.path}")
-	private String CHAT_HISTORY_PATH;
 
-	private final ObjectMapper objectMapper;
+	private final ChatRepository chatRepository;
+	private final ChatMessageRepository chatMessageRepository;
 
-	/**
-	 * Load all saved chats.
-	 */
 	@Override
 	public List<Chat> getAllChats() {
-		File file = new File(CHAT_HISTORY_PATH);
-
-		if (!file.exists()) {
-			return new ArrayList<>();
-		}
-
-		try {
-			return objectMapper.readValue(file,
-					objectMapper.getTypeFactory().constructCollectionType(List.class, Chat.class));
-		} catch (Exception e) {
-			throw new IllegalStateException("Failed to load chat history", e);
-		}
+		return chatRepository.findAll();
 	}
 
-	/**
-	 * Find a chat by its ID.
-	 */
 	@Override
 	public Chat getChat(String chatId) {
-		return getAllChats().stream().filter(chat -> chat.getId().equals(chatId)).findFirst()
+		return chatRepository.findById(chatId)
 				.orElseThrow(() -> new IllegalArgumentException("Chat not found: " + chatId));
 	}
 
-	/**
-	 * Create a new chat.
-	 */
 	@Override
 	public Chat createChat(String title) {
-		LocalDateTime now = LocalDateTime.now();
 
 		Chat chat = new Chat();
+
 		chat.setId(UUID.randomUUID().toString());
 		chat.setTitle(title);
-		chat.setCreatedAt(now);
-		chat.setUpdatedAt(now);
-		chat.setMessages(new ArrayList<>());
+		chat.setCreatedAt(LocalDateTime.now());
+		chat.setUpdatedAt(LocalDateTime.now());
 
-		List<Chat> chats = getAllChats();
-		chats.add(0, chat);
-		saveChats(chats);
-
-		return chat;
+		return chatRepository.save(chat);
 	}
 
-	/**
-	 * Add a message to an existing chat.
-	 */
 	@Override
+	@Transactional
 	public ChatMessage addMessage(String chatId, String role, String content) {
-		List<Chat> chats = getAllChats();
 
-		Chat chat = chats.stream().filter(item -> item.getId().equals(chatId)).findFirst()
+		Chat chat = chatRepository.findById(chatId)
 				.orElseThrow(() -> new IllegalArgumentException("Chat not found: " + chatId));
 
 		ChatMessage message = new ChatMessage();
@@ -89,43 +59,23 @@ public class ChatHistoryServiceImpl implements ChatHistoryService {
 		message.setRole(role);
 		message.setContent(content);
 		message.setTimestamp(LocalDateTime.now());
+		message.setChat(chat);
 
-		chat.getMessages().add(message);
+		ChatMessage savedMessage = chatMessageRepository.save(message);
+
 		chat.setUpdatedAt(LocalDateTime.now());
+		chatRepository.save(chat);
 
-		saveChats(chats);
-
-		return message;
+		return savedMessage;
 	}
 
-	/**
-	 * Delete a chat.
-	 */
 	@Override
+	@Transactional
 	public void deleteChat(String chatId) {
-		List<Chat> chats = getAllChats();
 
-		boolean removed = chats.removeIf(chat -> chat.getId().equals(chatId));
-		if (removed) {
-			saveChats(chats);
-		}
-	}
+		Chat chat = chatRepository.findById(chatId)
+				.orElseThrow(() -> new RuntimeException("Chat not found: " + chatId));
 
-	/**
-	 * Save all chats to disk.
-	 */
-	private void saveChats(List<Chat> chats) {
-		try {
-			File file = new File(CHAT_HISTORY_PATH);
-			File parent = file.getParentFile();
-
-			if (parent != null) {
-				parent.mkdirs();
-			}
-
-			objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, chats);
-		} catch (Exception e) {
-			throw new IllegalStateException("Failed to save chat history", e);
-		}
+		chatRepository.delete(chat);
 	}
 }

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: athena-postgres
+  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: athena-postgres
+      
+  template:
+    metadata:
+      labels:
+        app: athena-postgres
+    
+    spec:
+      containers:
+        - name: athena-postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5342
+          
+          env:
+            - name: POSTGRES_DB
+              value: athena
+              
+            - name: POSTGRES_USER
+              value: athena
+             
+            - name: POSTGRES_PASSWORD
+              value: athena123

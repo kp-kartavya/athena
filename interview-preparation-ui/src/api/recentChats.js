@@ -1,3 +1,5 @@
+import { getCsrfHeaders } from "./csrf";
+
 const BASE_URL = "";
 
 const handleResponse = async (response, errorMessage) => {
@@ -30,6 +32,10 @@ export const createChat = async (title) => {
     `${BASE_URL}/api/chats?title=${encodeURIComponent(title)}`,
     {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getCsrfHeaders(),
+      },
     },
   );
 
@@ -41,6 +47,10 @@ export const sendMessage = async (chatId, question, think) => {
     `${BASE_URL}/api/chats/${chatId}/messages?question=${encodeURIComponent(question)}&think=${think}`,
     {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getCsrfHeaders(),
+      },
     },
   );
 
@@ -50,6 +60,9 @@ export const sendMessage = async (chatId, question, think) => {
 export const deleteChat = async (chatId) => {
   const response = await fetch(`${BASE_URL}/api/chats/${chatId}`, {
     method: "DELETE",
+    headers: {
+      ...getCsrfHeaders(),
+    },
   });
 
   return handleResponse(response, "Failed to delete chat");

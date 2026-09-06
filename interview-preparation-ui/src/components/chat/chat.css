@@ -1,95 +1,64 @@
-/* ========================= */
-/* Main Chat                 */
-/* ========================= */
-
 .app {
   width: 100%;
-  height: 100vh;
-
+  height: 100dvh;
   display: flex;
-
   background: var(--bg);
   color: var(--text);
-
   overflow: hidden;
+  position: relative;
 }
 
 .main {
   flex: 1;
-
   width: 0;
   min-width: 0;
-
-  height: 100vh;
-
+  height: 100%;
   display: flex;
   flex-direction: column;
-
   background: var(--bg);
+  position: relative;
 }
-
-/* ========================= */
-/* Messages                  */
-/* ========================= */
 
 .messages {
   flex: 1;
-
   min-height: 0;
-
   overflow-y: auto;
   overflow-x: hidden;
-
   padding: 30px 24px;
-
   scroll-behavior: smooth;
 }
-
-/* ========================= */
-/* Welcome                   */
-/* ========================= */
 
 .welcome {
   width: 100%;
   height: 100%;
-
   display: flex;
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
-
   text-align: center;
-
   color: var(--text-secondary);
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .welcome h2 {
   margin: 0 0 8px;
-
   color: var(--text);
-
   font-size: 26px;
   font-weight: 600;
 }
 
 .welcome p {
   margin: 0;
-
   font-size: 14px;
 }
-
-/* ========================= */
-/* Messages                  */
-/* ========================= */
 
 .message {
   width: 100%;
   max-width: 850px;
-
   display: flex;
-
   margin: 0 auto 20px;
+  box-sizing: border-box;
 }
 
 .user-message {
@@ -98,16 +67,11 @@
 
 .user-message .message-content {
   max-width: 70%;
-
   padding: 11px 15px;
-
   border-radius: 14px;
-
   background: var(--user-message-bg);
   color: var(--text);
-
   line-height: 1.5;
-
   word-break: break-word;
 }
 
@@ -117,61 +81,35 @@
 
 .assistant-message .message-content {
   max-width: 80%;
-
   padding: 11px 0;
-
   color: var(--text);
-
   line-height: 1.6;
-
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
-
-/* ========================= */
-/* Input Area                */
-/* ========================= */
 
 .input-area {
   width: 100%;
-
   flex-shrink: 0;
-
   padding: 10px 24px 18px;
-
   box-sizing: border-box;
-
   background: var(--bg);
 }
 
-/* ========================= */
-/* Input Wrapper             */
-/* ========================= */
-
 .input-wrapper {
   position: relative;
-
   width: 100%;
   max-width: 850px;
-
   min-height: 56px;
-
   margin: 0 auto;
-
   display: flex;
   align-items: flex-end;
-
   gap: 6px;
-
   padding: 8px 8px 8px 14px;
-
   box-sizing: border-box;
-
   background: var(--surface);
-
   border: 1px solid var(--input-border);
-
   border-radius: 14px;
-
   transition:
     height 0.2s ease,
     max-width 0.2s ease;
@@ -181,36 +119,21 @@
   border-color: var(--input-border);
 }
 
-/* ========================= */
-/* Textarea                  */
-/* ========================= */
-
 .input-wrapper textarea {
   flex: 1;
-
   width: 100%;
   min-width: 0;
-
   min-height: 38px;
   max-height: 200px;
-
   margin: 0;
-
   padding: 9px 4px;
-
   box-sizing: border-box;
-
   border: none;
   outline: none;
-
   resize: none;
-
   overflow-y: auto;
-
   background: transparent;
-
   color: var(--text);
-
   font-family: inherit;
   font-size: 14px;
   line-height: 1.5;
@@ -224,38 +147,21 @@
   cursor: not-allowed;
 }
 
-/* ========================= */
-/* Think Button              */
-/* ========================= */
-
 .think-button {
   height: 38px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   gap: 6px;
-
   flex-shrink: 0;
-
   padding: 0 12px;
-
   border: none;
   border-radius: 9px;
-
   background: transparent;
-
   color: var(--text-secondary);
-
   font-size: 14px;
   font-weight: 500;
-
   cursor: pointer;
-
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
 }
 
 .think-button:hover:not(:disabled) {
@@ -265,48 +171,28 @@
 
 .think-button.active {
   background: rgba(59, 130, 246, 0.15);
-
-  color: #3b82f6;
-}
-
-.think-button.active:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 0.2);
-
   color: #3b82f6;
 }
 
 .think-button:disabled {
   opacity: 0.5;
-
   cursor: not-allowed;
 }
-
-/* ========================= */
-/* Send Button               */
-/* ========================= */
 
 .send-button {
   width: 38px;
   height: 38px;
-
   flex-shrink: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 0;
-
   border: none;
   border-radius: 9px;
-
   background: var(--button-bg);
   color: var(--button-text);
-
   font-size: 20px;
-
   cursor: pointer;
-
   transition:
     background 0.15s ease,
     transform 0.1s ease,
@@ -323,48 +209,30 @@
 
 .send-button:disabled {
   background: var(--input-border);
-
   color: var(--text-secondary);
-
   cursor: default;
 }
-
-/* ========================= */
-/* Input Hint                */
-/* ========================= */
 
 .input-hint {
   width: 100%;
   max-width: 850px;
-
   margin: 7px auto 0;
-
   text-align: center;
-
   color: var(--text-secondary);
-
   font-size: 11px;
 }
-
-/* ========================= */
-/* Thinking Indicator        */
-/* ========================= */
 
 .thinking {
   display: flex;
   align-items: center;
-
   gap: 4px;
-
   color: var(--text-secondary);
-
   font-size: 14px;
   line-height: 1.6;
 }
 
 .thinking-dots {
   display: inline-flex;
-
   margin-left: 2px;
 }
 
@@ -396,17 +264,9 @@
   }
 }
 
-/* ========================= */
-/* Disabled Input            */
-/* ========================= */
-
 .input-disabled {
   opacity: 0.7;
 }
-
-/* ========================= */
-/* Markdown Response         */
-/* ========================= */
 
 .assistant-message .message-content p {
   margin: 0 0 12px;
@@ -421,14 +281,12 @@
 .assistant-message .message-content h3 {
   margin-top: 18px;
   margin-bottom: 10px;
-
   color: var(--text);
 }
 
 .assistant-message .message-content ul,
 .assistant-message .message-content ol {
   margin: 8px 0 12px;
-
   padding-left: 24px;
 }
 
@@ -440,27 +298,19 @@
   font-weight: 700;
 }
 
-/* ========================= */
-/* Code Blocks               */
-/* ========================= */
-
 .assistant-message .message-content pre {
   margin: 14px 0;
-
   padding: 14px;
-
   overflow-x: auto;
-
+  max-width: 100%;
+  box-sizing: border-box;
   background: var(--sidebar-bg);
-
   border: 1px solid var(--border);
-
   border-radius: 8px;
 }
 
 .assistant-message .message-content code {
   font-family: Consolas, "Courier New", monospace;
-
   font-size: 13px;
 }
 
@@ -468,23 +318,13 @@
   background: transparent;
 }
 
-/* Inline code */
-
 .assistant-message .message-content :not(pre) > code {
   padding: 2px 5px;
-
   background: var(--user-message-bg);
-
   border-radius: 4px;
-
   font-family: Consolas, "Courier New", monospace;
-
   font-size: 13px;
 }
-
-/* ========================= */
-/* Scrollbar                */
-/* ========================= */
 
 .messages::-webkit-scrollbar {
   width: 8px;
@@ -496,7 +336,6 @@
 
 .messages::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
-
   border-radius: 10px;
 }
 
@@ -514,76 +353,24 @@
 
 .input-wrapper textarea::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
-
   border-radius: 10px;
-}
-
-/* ========================= */
-/* Responsive               */
-/* ========================= */
-
-@media (max-width: 768px) {
-  .messages {
-    padding: 20px 16px;
-  }
-
-  .input-area {
-    padding: 10px 16px 15px;
-  }
-
-  .user-message .message-content {
-    max-width: 85%;
-  }
-
-  .assistant-message .message-content {
-    max-width: 90%;
-  }
-}
-
-@media (max-width: 600px) {
-  .welcome h2 {
-    font-size: 22px;
-  }
-
-  .input-wrapper {
-    padding-left: 10px;
-  }
-
-  .think-button {
-    padding: 0 8px;
-  }
-
-  .think-button span {
-    display: none;
-  }
 }
 
 .composer-expand-button {
   position: absolute;
-
   top: 10px;
   right: 10px;
-
   width: 34px;
   height: 34px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 0;
-
   border: none;
   border-radius: 8px;
-
   background: transparent;
   color: var(--text-secondary);
-
   cursor: pointer;
-
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
 }
 
 .composer-expand-button:hover {
@@ -593,29 +380,227 @@
 
 .input-wrapper.composer-expanded {
   height: 70vh;
-
   max-width: 850px;
-
   align-items: flex-end;
-
   padding-top: 52px;
 }
 
 .input-wrapper.composer-expanded textarea {
   height: 100% !important;
-
   max-height: none;
-
   align-self: stretch;
-
   padding-top: 8px;
-
   padding-bottom: 48px;
-
   overflow-y: auto;
 }
 
 .input-wrapper.composer-expanded .think-button,
 .input-wrapper.composer-expanded .send-button {
   margin-bottom: 0;
+}
+
+/* Mobile sidebar controls */
+
+.mobile-sidebar-toggle {
+  display: none;
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .messages {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .input-area {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .user-message .message-content {
+    max-width: 78%;
+  }
+
+  .assistant-message .message-content {
+    max-width: 88%;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-sidebar-toggle {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 20;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  }
+
+  .mobile-sidebar-toggle:hover {
+    background: var(--surface-hover);
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    display: block;
+    padding: 0;
+    border: none;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 90;
+    cursor: pointer;
+  }
+
+  .messages {
+    padding: 18px 12px;
+  }
+
+  .input-area {
+    padding: 8px 10px max(12px, env(safe-area-inset-bottom));
+  }
+
+  .message {
+    max-width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .user-message .message-content {
+    max-width: 88%;
+    padding: 10px 13px;
+  }
+
+  .assistant-message .message-content {
+    max-width: 96%;
+    padding: 8px 0;
+  }
+
+  .welcome {
+    padding: 20px 14px;
+  }
+
+  .welcome h2 {
+    font-size: 21px;
+  }
+
+  .welcome p {
+    font-size: 13px;
+  }
+
+  .input-wrapper {
+    min-height: 52px;
+    padding: 6px 6px 6px 10px;
+    border-radius: 12px;
+    gap: 4px;
+  }
+
+  .input-wrapper textarea {
+    min-height: 38px;
+    max-height: 120px;
+    padding: 9px 3px;
+    font-size: 14px;
+  }
+
+  .think-button {
+    width: 38px;
+    padding: 0;
+  }
+
+  .think-button span {
+    display: none;
+  }
+
+  .send-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .input-hint {
+    margin-top: 5px;
+    font-size: 9px;
+  }
+
+  .input-wrapper.composer-expanded {
+    height: 60dvh;
+  }
+
+  .assistant-message .message-content pre {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .messages {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .user-message .message-content {
+    max-width: 92%;
+  }
+
+  .assistant-message .message-content {
+    max-width: 100%;
+  }
+
+  .assistant-message .message-content code {
+    font-size: 12px;
+  }
+
+  .assistant-message .message-content pre {
+    padding: 10px;
+    margin: 10px 0;
+  }
+
+  .input-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .mobile-sidebar-toggle {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 20;
+  }
+
+  .messages {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .input-area {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .input-wrapper {
+    width: 100%;
+    max-width: none;
+  }
+
+  .input-wrapper.composer-expanded {
+    width: 100%;
+    max-width: none;
+    height: 60dvh;
+  }
 }

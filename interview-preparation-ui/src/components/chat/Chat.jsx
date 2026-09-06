@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { Menu } from "lucide-react";
 import Sidebar from "../sidebar/Sidebar";
 import { getChat, createChat, sendMessage } from "../../api/recentChats";
 import "./chat.css";
@@ -7,7 +8,7 @@ import ThinkToggle from "../think/ThinkToggle";
 import Header from "../header/Header";
 import ComposerExpandToggle from "../expand/ComposerExpandToggle";
 
-const Chat = () => {
+const Chat = ({ theme, onToggleTheme, currentUser }) => {
   const [question, setQuestion] = useState("");
   const [activeChatId, setActiveChatId] = useState(null);
   const [activeChat, setActiveChat] = useState(null);
@@ -16,19 +17,16 @@ const Chat = () => {
   const [thinkMode, setThinkMode] = useState(false);
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
   const [showExpandButton, setShowExpandButton] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
-  /*
-   * Get messages from the currently active chat.
-   */
-  const messages = activeChat?.messages ?? [];
+  const messages = useMemo(
+    () => activeChat?.messages ?? [],
+    [activeChat?.messages],
+  );
 
-  /*
-   * Scroll to the latest message whenever
-   * messages or loading state changes.
-   */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -37,7 +35,10 @@ const Chat = () => {
 
   useEffect(() => {
     const textarea = textareaRef.current;
-    if (!textarea) return;
+
+    if (!textarea) {
+      return;
+    }
 
     textarea.style.height = "auto";
 
@@ -53,9 +54,20 @@ const Chat = () => {
     setShowExpandButton(textarea.scrollHeight > maxHeight);
   }, [question]);
 
-  /*
-   * Start a new conversation.
-   */
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   const handleNewChat = () => {
     if (isLoading) {
       return;
@@ -64,11 +76,9 @@ const Chat = () => {
     setActiveChatId(null);
     setActiveChat(null);
     setQuestion("");
+    setIsMobileSidebarOpen(false);
   };
 
-  /*
-   * Load an existing conversation.
-   */
   const handleSelectChat = async (chatId) => {
     if (isLoading) {
       return;
@@ -80,14 +90,12 @@ const Chat = () => {
       setActiveChatId(chat.id);
       setActiveChat(chat);
       setQuestion("");
+      setIsMobileSidebarOpen(false);
     } catch (error) {
       console.error("Failed to load chat:", error);
     }
   };
 
-  /*
-   * Send a question.
-   */
   const handleSend = async () => {
     const trimmedQuestion = question.trim();
 
@@ -101,9 +109,6 @@ const Chat = () => {
     try {
       let chatId = activeChatId;
 
-      /*
-       * No active chat means this is a new conversation.
-       */
       if (!chatId) {
         const newChat = await createChat(trimmedQuestion);
 
@@ -113,9 +118,6 @@ const Chat = () => {
         setActiveChat(newChat);
       }
 
-      /*
-       * Show the user's message immediately.
-       */
       const userMessage = {
         id: `temp-${Date.now()}`,
         role: "user",
@@ -128,19 +130,9 @@ const Chat = () => {
         messages: [...(prev?.messages ?? []), userMessage],
       }));
 
-      /*
-       * Backend:
-       * 1. Saves user message
-       * 2. Runs RAG + Qwen
-       * 3. Saves assistant response
-       */
       const updatedChat = await sendMessage(chatId, trimmedQuestion, thinkMode);
 
       setActiveChat(updatedChat);
-
-      /*
-       * Refresh sidebar recents.
-       */
       setRefreshKey((prev) => prev + 1);
     } catch (error) {
       console.error("Error sending message:", error);
@@ -163,24 +155,45 @@ const Chat = () => {
 
   return (
     <div className="app">
+      {isMobileSidebarOpen && (
+        <button
+          type="button"
+          className="sidebar-overlay"
+          onClick={() => setIsMobileSidebarOpen(false)}
+          aria-label="Close sidebar"
+        />
+      )}
+
       <Sidebar
         activeChatId={activeChatId}
         onNewChat={handleNewChat}
         onSelectChat={handleSelectChat}
         disabled={isLoading}
         refreshKey={refreshKey}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
+        currentUser={currentUser}
+        mobileOpen={isMobileSidebarOpen}
+        onMobileClose={() => setIsMobileSidebarOpen(false)}
       />
 
       <main className="main">
-        {/* Header */}
+        <button
+          type="button"
+          className="mobile-sidebar-toggle"
+          onClick={() => setIsMobileSidebarOpen(true)}
+          aria-label="Open sidebar"
+          title="Open sidebar"
+        >
+          <Menu size={20} />
+        </button>
+
         <Header />
 
-        {/* Messages */}
         <div className="messages">
           {messages.length === 0 ? (
             <div className="welcome">
               <h2>How can I help you?</h2>
-
               <p>Ask me anything about your interview preparation.</p>
             </div>
           ) : (
@@ -200,7 +213,6 @@ const Chat = () => {
             ))
           )}
 
-          {/* Thinking indicator */}
           {isLoading && (
             <div className="message assistant-message">
               <div className="thinking">
@@ -218,12 +230,11 @@ const Chat = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
         <div className="input-area">
           <div
-            className={`input-wrapper ${isLoading ? "input-disabled" : ""} ${
-              isComposerExpanded ? "composer-expanded" : ""
-            }`}
+            className={`input-wrapper ${
+              isLoading ? "input-disabled" : ""
+            } ${isComposerExpanded ? "composer-expanded" : ""}`}
           >
             {showExpandButton && (
               <ComposerExpandToggle
@@ -242,10 +253,10 @@ const Chat = () => {
               value={question}
               rows="1"
               disabled={isLoading}
-              onChange={(e) => setQuestion(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey && !isLoading) {
-                  e.preventDefault();
+              onChange={(event) => setQuestion(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey && !isLoading) {
+                  event.preventDefault();
                   handleSend();
                 }
               }}

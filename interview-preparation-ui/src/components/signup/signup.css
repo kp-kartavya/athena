@@ -1,0 +1,131 @@
+.signup-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.signup-theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+}
+
+.signup-card {
+  width: 400px;
+  padding: 42px 40px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.signup-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 18px;
+}
+
+.signup-card h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.signup-card p {
+  margin: 10px 0 26px;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+.signup-card .auth-input {
+  width: 100%;
+  height: 46px;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+}
+
+.signup-card .auth-input:focus {
+  border-color: var(--text-secondary);
+}
+
+.signup-card .auth-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.turnstile-container {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 16px;
+  min-height: 65px;
+}
+
+.auth-error {
+  margin: 4px 0 12px;
+  color: #d93025;
+  font-size: 13px;
+  text-align: left;
+}
+
+.continue-btn {
+  width: 100%;
+  height: 46px;
+  padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.1s ease;
+}
+
+.continue-btn:hover {
+  opacity: 0.9;
+}
+
+.continue-btn:active {
+  transform: scale(0.99);
+}
+
+.continue-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-prompt {
+  margin-top: 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.login-prompt button {
+  margin-left: 5px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-prompt button:hover {
+  text-decoration: underline;
+}

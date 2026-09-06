@@ -14,11 +14,15 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+/**
+ * Represents an Athena user account.
+ *
+ * Supports Google OAuth, GitHub OAuth, and local email/password accounts.
+ */
 @Data
 @Entity
 @Table(name = "users")
 public class User {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -26,16 +30,20 @@ public class User {
 	@Column(nullable = false)
 	private String name;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String email;
 
-	@Column(nullable = false)
 	private String oauthProvider;
 
-	@Column(nullable = false, unique = true)
+	@Column(unique = true)
 	private String oauthId;
 
+	private String passwordHash;
+
 	private String profileImage;
+
+	@Column(nullable = false)
+	private boolean emailVerified = false;
 
 	private LocalDateTime createdAt;
 

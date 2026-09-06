@@ -4,87 +4,113 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.markdown.MarkdownDocumentReader;
 import org.springframework.ai.reader.markdown.config.MarkdownDocumentReaderConfig;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
-import org.springframework.ai.vectorstore.SimpleVectorStore;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.interview.model.DocumentChunk;
 import com.interview.model.DocumentManifest;
+import com.interview.repo.DocumentChunkRepository;
 import com.interview.util.DocumentHashUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * Handles interview document ingestion and synchronization.
+ *
+ * Reads interview.md, creates stable chunks, persists chunk content and
+ * metadata in PostgreSQL, and synchronizes embeddings with PostgreSQL pgvector.
+ *
+ * A PostgreSQL advisory lock ensures that only one backend replica performs
+ * ingestion when multiple replicas start together.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DocumentIngestionServiceImpl implements CommandLineRunner {
-	@Value("${vector.store.path}")
-	private String VECTOR_STORE_PATH;
+public class DocumentIngestionServiceImpl {
+
+	private static final long INGESTION_LOCK_ID = 87456321L;
+
 	@Value("${manifest.path}")
 	private String MANIFEST_PATH;
 
-	private final SimpleVectorStore vectorStore;
-
+	private final VectorStore vectorStore;
 	private final ObjectMapper objectMapper;
+	private final DocumentChunkRepository documentChunkRepository;
+	private final JdbcTemplate jdbcTemplate;
 
-	@Override
-	public void run(String... args) {
+	@EventListener(ApplicationReadyEvent.class)
+	public void run() {
+		jdbcTemplate.execute((ConnectionCallback<Void>) connection -> {
+			try {
+				acquireIngestionLock(connection);
+				log.info("Starting document ingestion.");
+				loadDocument();
+			} catch (Exception e) {
+				throw new IllegalStateException("Document ingestion failed.", e);
+			} finally {
+				releaseIngestionLock(connection);
+			}
 
-		loadDocument();
+			return null;
+		});
+	}
+
+	private void acquireIngestionLock(Connection connection) throws Exception {
+		try (PreparedStatement statement = connection.prepareStatement("SELECT pg_advisory_lock(?)")) {
+			statement.setLong(1, INGESTION_LOCK_ID);
+			statement.execute();
+		}
+	}
+
+	private void releaseIngestionLock(Connection connection) {
+		try (PreparedStatement statement = connection.prepareStatement("SELECT pg_advisory_unlock(?)")) {
+			statement.setLong(1, INGESTION_LOCK_ID);
+			statement.execute();
+
+			log.info("Document ingestion completed.");
+		} catch (Exception e) {
+			log.warn("Failed to release document ingestion lock.", e);
+		}
 	}
 
 	public void loadDocument() {
-
-		File vectorStoreFile = new File(VECTOR_STORE_PATH);
-
 		File manifestFile = new File(MANIFEST_PATH);
 
-		/* Load existing vector store if available. */
-		if (vectorStoreFile.exists()) {
-
-			log.info("Vector store found. Loading existing embeddings...");
-
-			vectorStore.load(vectorStoreFile);
-
-			log.info("Vector store loaded successfully.");
-		}
-
-		/* Load previous manifest. */
-		DocumentManifest oldManifest = loadManifest(manifestFile);
-
-		/* Read Markdown document. */
 		ClassPathResource resource = new ClassPathResource("documents/interview.md");
 
 		MarkdownDocumentReader reader = new MarkdownDocumentReader(resource,
 				MarkdownDocumentReaderConfig.defaultConfig());
 
 		List<Document> documents = reader.read();
-
-		log.info("Documents loaded: {}", documents.size());
-
 		List<Document> handsOnDocuments = loadHandsOnQuestions(resource);
-
 		documents.addAll(handsOnDocuments);
 
-		log.info("Added {} hands-on questions.", handsOnDocuments.size());
-
-		log.info("Total documents after hands-on questions: {}", documents.size());
+		log.info("Loaded {} documents and {} hands-on questions.", documents.size(), handsOnDocuments.size());
 
 		DocumentManifest newManifest = new DocumentManifest();
 
-		/* Add metadata. */
 		for (Document document : documents) {
 			String title = (String) document.getMetadata().get("title");
 			if (title != null && !title.isBlank()) {
@@ -93,148 +119,202 @@ public class DocumentIngestionServiceImpl implements CommandLineRunner {
 			document.getMetadata().put("source", "interview.md");
 		}
 
-		/* Create chunks. */
 		TokenTextSplitter splitter = TokenTextSplitter.builder().build();
-
 		List<Document> chunks = new ArrayList<>();
 
 		for (Document document : documents) {
-
 			List<Document> documentChunks = splitter.apply(List.of(document));
-
 			chunks.addAll(documentChunks);
 		}
 
-		log.info("Total chunks created: {}", chunks.size());
+		log.info("Created {} document chunks.", chunks.size());
 
-		/* Create current manifest. */
 		Map<String, Document> currentChunks = new HashMap<>();
 
-		/* Generate stable IDs and hashes. */
 		Map<String, Integer> sectionCounters = new HashMap<>();
 
 		for (Document chunk : chunks) {
+
 			String section = (String) chunk.getMetadata().get("section");
 
+			if (section == null || section.isBlank()) {
+				section = "UNKNOWN";
+				chunk.getMetadata().put("section", section);
+			}
+
 			int chunkIndex = sectionCounters.getOrDefault(section, 0);
+
 			sectionCounters.put(section, chunkIndex + 1);
 
 			String chunkId = DocumentHashUtil.generateChunkId(section, chunkIndex);
+
 			String contentHash = DocumentHashUtil.generateHash(chunk.getText());
 
 			chunk.getMetadata().put("chunkId", chunkId);
 			chunk.getMetadata().put("contentHash", contentHash);
 
+			DocumentChunk dbChunk = documentChunkRepository.findByChunkId(chunkId).orElseGet(DocumentChunk::new);
+
+			LocalDateTime now = LocalDateTime.now();
+
+			dbChunk.setChunkId(chunkId);
+			dbChunk.setSection(section);
+			dbChunk.setChunkIndex(chunkIndex);
+			dbChunk.setContent(chunk.getText());
+			dbChunk.setContentHash(contentHash);
+			dbChunk.setSource((String) chunk.getMetadata().getOrDefault("source", "interview.md"));
+			dbChunk.setType((String) chunk.getMetadata().getOrDefault("type", "KNOWLEDGE"));
+
+			if (dbChunk.getCreatedAt() == null) {
+				dbChunk.setCreatedAt(now);
+			}
+
+			dbChunk.setUpdatedAt(now);
+			documentChunkRepository.save(dbChunk);
+
 			currentChunks.put(chunkId, chunk);
+
 			newManifest.getChunks().put(chunkId, contentHash);
 			newManifest.getSections().put(section, chunkId);
-
-			log.info("Section: {} | Chunk Index: {} | Chunk ID: {} | Hash: {}", section, chunkIndex, chunkId,
-					contentHash);
 		}
 
-		/* Detect changes. */
+		removeDeletedChunks(currentChunks);
+		synchronizeVectorStore(currentChunks);
+		saveManifest(newManifest, manifestFile);
+	}
+
+	private void synchronizeVectorStore(Map<String, Document> currentChunks) {
+		Map<String, String> vectorMetadata = loadVectorMetadata();
 		List<Document> documentsToEmbed = new ArrayList<>();
 
 		for (Map.Entry<String, Document> entry : currentChunks.entrySet()) {
 			String chunkId = entry.getKey();
 			Document currentChunk = entry.getValue();
 			String currentHash = (String) currentChunk.getMetadata().get("contentHash");
-			String oldHash = oldManifest.getChunks().get(chunkId);
-			if (oldHash == null) {
-				log.info("NEW chunk detected: {}", chunkId);
+			String vectorHash = vectorMetadata.get(chunkId);
+
+			if (vectorHash == null) {
 				documentsToEmbed.add(currentChunk);
-			} else if (!oldHash.equals(currentHash)) {
-				log.info("CHANGED chunk detected: {}", chunkId);
+				continue;
+			}
+
+			if (!vectorHash.equals(currentHash)) {
 				vectorStore.delete("chunkId == '" + chunkId + "'");
 				documentsToEmbed.add(currentChunk);
 			}
 		}
 
-		/* Detect removed chunks. */
-		for (String oldChunkId : oldManifest.getChunks().keySet()) {
-			if (!currentChunks.containsKey(oldChunkId)) {
-				log.info("REMOVED chunk detected: {}", oldChunkId);
-				vectorStore.delete("chunkId == '" + oldChunkId + "'");
+		Set<String> currentChunkIds = new HashSet<>(currentChunks.keySet());
+
+		for (String vectorChunkId : vectorMetadata.keySet()) {
+			if (!currentChunkIds.contains(vectorChunkId)) {
+				vectorStore.delete("chunkId == '" + vectorChunkId + "'");
 			}
 		}
 
-		/* Add new/changed embeddings. */
 		if (!documentsToEmbed.isEmpty()) {
-			log.info("Generating embeddings for {} chunks...", documentsToEmbed.size());
+			log.info("Generating embeddings for {} chunks.", documentsToEmbed.size());
 			vectorStore.add(documentsToEmbed);
+			log.info("Embeddings synchronized with PostgreSQL.");
 		} else {
-			log.info("No new or changed chunks found.");
+
+			log.info("Embeddings are already up to date.");
 		}
-
-		/* Save vector store. */
-		vectorStoreFile.getParentFile().mkdirs();
-		vectorStore.save(vectorStoreFile);
-
-		log.info("Vector store saved to: {}", VECTOR_STORE_PATH);
-		/* Save manifest. */
-		saveManifest(newManifest, manifestFile);
 	}
 
-	private DocumentManifest loadManifest(File manifestFile) {
-		if (!manifestFile.exists()) {
-			log.info("Document manifest not found. Creating new manifest.");
-			return new DocumentManifest();
+	private Map<String, String> loadVectorMetadata() {
+		Map<String, String> vectorMetadata = new HashMap<>();
+
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList("""
+				SELECT
+				    metadata ->> 'chunkId' AS chunk_id,
+				    metadata ->> 'contentHash' AS content_hash
+				FROM vector_store
+				WHERE metadata ->> 'chunkId' IS NOT NULL
+				""");
+
+		for (Map<String, Object> row : rows) {
+			String chunkId = (String) row.get("chunk_id");
+			String contentHash = (String) row.get("content_hash");
+
+			if (chunkId != null) {
+				vectorMetadata.put(chunkId, contentHash);
+			}
 		}
 
-		try {
-			return objectMapper.readValue(manifestFile, DocumentManifest.class);
-		} catch (Exception e) {
-			throw new IllegalStateException("Failed to load document manifest", e);
-		}
+		log.info("Found {} existing vectors.", vectorMetadata.size());
+
+		return vectorMetadata;
 	}
 
 	private void saveManifest(DocumentManifest manifest, File manifestFile) {
+
 		try {
-			manifestFile.getParentFile().mkdirs();
+
+			if (manifestFile.getParentFile() != null) {
+				manifestFile.getParentFile().mkdirs();
+			}
+
 			objectMapper.writerWithDefaultPrettyPrinter().writeValue(manifestFile, manifest);
-			log.info("Document manifest saved to: {}", MANIFEST_PATH);
+
 		} catch (Exception e) {
+
 			throw new IllegalStateException("Failed to save document manifest", e);
 		}
 	}
 
 	private List<Document> loadHandsOnQuestions(ClassPathResource resource) {
+
 		List<Document> handsOnDocuments = new ArrayList<>();
+
 		boolean insideHandsOnSection = false;
 
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
 
 			String line;
+
 			while ((line = reader.readLine()) != null) {
+
 				String trimmed = line.trim();
-				/* Start of hands-on section */
+
 				if (trimmed.equalsIgnoreCase("## STREAM HANDS-ON QUESTIONS")) {
+
 					insideHandsOnSection = true;
 					continue;
 				}
 
-				/* End of hands-on section */
 				if (insideHandsOnSection && trimmed.equalsIgnoreCase("## Interview Experience")) {
 					break;
 				}
 
-				/* Collect the hands-on question headings. */
 				if (insideHandsOnSection && trimmed.startsWith("## ")) {
 					String question = trimmed.substring(3).trim();
+
 					Document document = new Document(question);
 					document.getMetadata().put("section", question);
 					document.getMetadata().put("source", "interview.md");
 					document.getMetadata().put("type", "HANDS_ON");
+
 					handsOnDocuments.add(document);
-					log.info("Hands-on question created: {}", question);
 				}
 			}
+
 		} catch (Exception e) {
 			throw new IllegalStateException("Failed to read hands-on questions from interview.md", e);
 		}
 
 		return handsOnDocuments;
+	}
+
+	private void removeDeletedChunks(Map<String, Document> currentChunks) {
+
+		List<DocumentChunk> dbChunks = documentChunkRepository.findAll();
+
+		for (DocumentChunk dbChunk : dbChunks) {
+			if (!currentChunks.containsKey(dbChunk.getChunkId())) {
+				documentChunkRepository.delete(dbChunk);
+			}
+		}
 	}
 }

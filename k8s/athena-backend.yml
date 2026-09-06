@@ -4,35 +4,61 @@ metadata:
   name: athena-backend
 
 spec:
-  replicas: 1
+  replicas: 2
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
   selector:
     matchLabels:
       app: athena-backend
+
   template:
     metadata:
       labels:
         app: athena-backend
+
     spec:
       containers:
         - name: athena-backend
-          image: athena-backend:1.0
+          image: athena-backend:3.7
+          imagePullPolicy: Never
+
           ports:
             - containerPort: 8080
+
           envFrom:
             - configMapRef:
                 name: athena-backend-config
             - secretRef:
                 name: athena-oauth-secret
+            - secretRef:
+                name: athena-mail-secret
+            - secretRef:
+                name: athena-turnstile-secret
           volumeMounts:
             - name: athena-data
               mountPath: /app/data
-            
+
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+
           livenessProbe:
             httpGet:
               path: /livez
               port: 8080
             initialDelaySeconds: 20
             periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
 
           readinessProbe:
             httpGet:
@@ -40,7 +66,9 @@ spec:
               port: 8080
             initialDelaySeconds: 10
             periodSeconds: 10
-      
+            timeoutSeconds: 3
+            failureThreshold: 3
+
       volumes:
         - name: athena-data
           persistentVolumeClaim:

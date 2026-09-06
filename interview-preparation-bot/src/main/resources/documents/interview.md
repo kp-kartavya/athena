@@ -127,7 +127,8 @@ Child classes should be replaceable with parent classes without affecting parent
 Interface segregation principle
 Clients should not be forced to implement unused interfaces
 Dependency inversion principle
-High-level modules depend on abstraction, not concrete implementation
+High-level modules depend on abstraction, 
+No concrete implementation
 
 ## Mono vs Micro
 In mono, the app is deployed as a single unit; components are tightly coupled, easier to develop initially, but harder to maintain

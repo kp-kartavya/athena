@@ -75,3 +75,11 @@ spec:
                 name: athena-frontend
                 port:
                   number: 80
+                  
+          - path: /logout
+            pathType: Prefix
+            backend:
+              service:
+                name: athena-backend
+                port:
+                  number: 8080

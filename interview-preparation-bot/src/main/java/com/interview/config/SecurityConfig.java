@@ -28,13 +28,15 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 				.csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/oauth2/**", "/login/**", "/api/auth/me", "/api/auth/csrf",
-								"/api/auth/check-email", "/api/auth/register", "/api/auth/verify-email",
-								"/api/auth/resend-code", "/api/auth/login", "/api/auth/forgot-password",
-								"/api/auth/reset-password", "/api/auth/resend-password-reset-code", "/api/auth/logout",
-								"/actuator/health/**", "/livez", "/readyz", "/v3/api-docs/**", "/swagger-ui.html")
-						.permitAll().anyRequest().authenticated())
+				.authorizeHttpRequests(
+						auth -> auth
+								.requestMatchers("/oauth2/**", "/login/**", "/api/auth/me", "/api/auth/csrf",
+										"/api/auth/check-email", "/api/auth/register", "/api/auth/verify-email",
+										"/api/auth/resend-code", "/api/auth/login", "/api/auth/forgot-password",
+										"/api/auth/reset-password", "/api/auth/resend-password-reset-code",
+										"/api/auth/logout", "/api/guest/ask", "/actuator/health/**", "/livez",
+										"/readyz", "/v3/api-docs/**", "/swagger-ui.html")
+								.permitAll().anyRequest().authenticated())
 				.exceptionHandling(
 						exception -> exception.authenticationEntryPoint((request, response, authException) -> {
 							if (request.getRequestURI().startsWith("/api/")) {

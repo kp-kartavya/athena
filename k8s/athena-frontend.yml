@@ -11,6 +11,19 @@ spec:
     rollingUpdate:
       maxUnavailable: 0
       maxSurge: 1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: athena-frontend
+
+spec:
+  replicas: 2
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
 
   selector:
     matchLabels:
@@ -24,11 +37,33 @@ spec:
     spec:
       containers:
         - name: athena-frontend
-          image: athena-frontend:2.0
+          image: athena-frontend:5.5
           imagePullPolicy: Never
+
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 101
+            runAsGroup: 101
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
 
           ports:
             - containerPort: 80
+
+          volumeMounts:
+            - name: nginx-run
+              mountPath: /tmp/nginx
+
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+
+            - name: nginx-logs
+              mountPath: /var/log/nginx
 
           resources:
             requests:
@@ -55,3 +90,13 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 3
+
+      volumes:
+        - name: nginx-run
+          emptyDir: {}
+
+        - name: nginx-cache
+          emptyDir: {}
+
+        - name: nginx-logs
+          emptyDir: {}

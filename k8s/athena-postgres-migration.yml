@@ -22,7 +22,10 @@ spec:
           value: athena
 
         - name: POSTGRES_PASSWORD
-          value: athena123
+          valueFrom:
+            secretKeyRef:
+              name: athena-postgres-secret
+              key: POSTGRES_PASSWORD
 
       volumeMounts:
         - name: postgres-data

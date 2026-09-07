@@ -10,17 +10,24 @@ function Signup({
   onToggleTheme,
   onBackToLogin,
   onVerificationRequired,
+  modal = false,
 }) {
   const [name, setName] = useState("");
+
   const [email, setEmail] = useState("");
+
   const [password, setPassword] = useState("");
+
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [turnstileToken, setTurnstileToken] = useState("");
 
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState("");
 
   const turnstileRef = useRef(null);
+
   const widgetIdRef = useRef(null);
 
   useEffect(() => {
@@ -36,15 +43,19 @@ function Signup({
       widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
         sitekey: import.meta.env.VITE_TURNSTILE_SITE_KEY,
         theme,
+
         callback: (token) => {
           setTurnstileToken(token);
           setError("");
         },
+
         "expired-callback": () => {
           setTurnstileToken("");
         },
+
         "error-callback": () => {
           setTurnstileToken("");
+
           setError("Security verification failed. Please try again.");
         },
       });
@@ -58,6 +69,7 @@ function Signup({
     const interval = setInterval(() => {
       if (window.turnstile) {
         clearInterval(interval);
+
         renderTurnstile();
       }
     }, 100);
@@ -67,6 +79,7 @@ function Signup({
 
       if (window.turnstile && widgetIdRef.current !== null) {
         window.turnstile.remove(widgetIdRef.current);
+
         widgetIdRef.current = null;
       }
     };
@@ -86,6 +99,7 @@ function Signup({
     setError("");
 
     const normalizedName = name.trim();
+
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!normalizedName) {
@@ -135,7 +149,9 @@ function Signup({
 
       if (!response.ok) {
         setError(data.message || "Unable to create your account.");
+
         resetTurnstile();
+
         return;
       }
 
@@ -145,6 +161,7 @@ function Signup({
       });
     } catch {
       setError("Unable to connect to Athena.");
+
       resetTurnstile();
     } finally {
       setLoading(false);
@@ -152,12 +169,14 @@ function Signup({
   };
 
   return (
-    <div className="signup-page">
+    <div className={`signup-page ${modal ? "signup-modal-content" : ""}`}>
       <LoadingWidget visible={loading} message="Creating your account..." />
 
-      <div className="signup-theme-toggle">
-        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
-      </div>
+      {!modal && (
+        <div className="signup-theme-toggle">
+          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+        </div>
+      )}
 
       <div className="signup-card">
         <img src={logo} alt="Athena" className="signup-logo" />
@@ -218,7 +237,8 @@ function Signup({
         </form>
 
         <div className="login-prompt">
-          Already have an account?
+          <span>Already have an account?</span>
+
           <button type="button" onClick={onBackToLogin} disabled={loading}>
             Log in
           </button>

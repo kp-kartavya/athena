@@ -8,19 +8,35 @@ import TurnstileWidget from "../turnstile/TurnstileWidget";
 import LoadingWidget from "../loading/LoadingWidget";
 import { getCsrfHeaders } from "../../api/csrf";
 
-function Login({ theme, onToggleTheme, onSignup, onForgotPassword }) {
+function Login({
+  theme,
+  onToggleTheme,
+  onSignup,
+  onForgotPassword,
+  onGuest,
+  onBack,
+  modal = false,
+}) {
   const [email, setEmail] = useState("");
+
   const [password, setPassword] = useState("");
+
   const [emailChecked, setEmailChecked] = useState(false);
+
   const [providers, setProviders] = useState([]);
+
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState("");
+
   const [turnstileToken, setTurnstileToken] = useState("");
 
   const turnstileRef = useRef(null);
 
   const hasLocal = providers.includes("local");
+
   const hasGoogle = providers.includes("google");
+
   const hasGithub = providers.includes("github");
 
   const handleCheckEmail = async (event) => {
@@ -57,6 +73,7 @@ function Login({ theme, onToggleTheme, onSignup, onForgotPassword }) {
       }
 
       setProviders(data.providers || []);
+
       setEmailChecked(true);
       setPassword("");
       setTurnstileToken("");
@@ -106,6 +123,7 @@ function Login({ theme, onToggleTheme, onSignup, onForgotPassword }) {
 
         turnstileRef.current?.reset();
         setTurnstileToken("");
+
         return;
       }
 
@@ -140,19 +158,33 @@ function Login({ theme, onToggleTheme, onSignup, onForgotPassword }) {
     setProviders([]);
     setTurnstileToken("");
     setError("");
+
     turnstileRef.current?.reset();
+
+    onBack?.();
+  };
+
+  const handleGuest = () => {
+    if (loading) {
+      return;
+    }
+
+    setError("");
+    onGuest?.();
   };
 
   return (
-    <div className="login-page">
+    <div className={`login-page ${modal ? "login-modal-content" : ""}`}>
       <LoadingWidget
         visible={loading}
         message={emailChecked ? "Signing in..." : "Checking email..."}
       />
 
-      <div className="login-theme-toggle">
-        <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
-      </div>
+      {!modal && (
+        <div className="login-theme-toggle">
+          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+        </div>
+      )}
 
       <div className="login-card">
         <img src={logo} alt="Athena" className="login-logo" />
@@ -187,6 +219,7 @@ function Login({ theme, onToggleTheme, onSignup, onForgotPassword }) {
             </div>
 
             <button
+              type="button"
               className="google-login-btn"
               onClick={handleGoogleLogin}
               disabled={loading}
@@ -196,6 +229,7 @@ function Login({ theme, onToggleTheme, onSignup, onForgotPassword }) {
             </button>
 
             <button
+              type="button"
               className="github-login-btn"
               onClick={handleGithubLogin}
               disabled={loading}
@@ -205,11 +239,33 @@ function Login({ theme, onToggleTheme, onSignup, onForgotPassword }) {
             </button>
 
             <div className="signup-prompt">
-              Don't have an account?
+              <span>Don't have an account?</span>
+
               <button type="button" onClick={onSignup} disabled={loading}>
                 Sign up
               </button>
             </div>
+
+            {!modal && (
+              <>
+                <div className="guest-divider">
+                  <span>OR</span>
+                </div>
+
+                <button
+                  type="button"
+                  className="guest-login-btn"
+                  onClick={handleGuest}
+                  disabled={loading}
+                >
+                  Continue without an account
+                </button>
+
+                <div className="guest-note">
+                  Guest conversations are not saved.
+                </div>
+              </>
+            )}
           </>
         ) : (
           <>
@@ -269,6 +325,7 @@ function Login({ theme, onToggleTheme, onSignup, onForgotPassword }) {
 
             {hasGoogle && (
               <button
+                type="button"
                 className="google-login-btn"
                 onClick={handleGoogleLogin}
                 disabled={loading}
@@ -280,6 +337,7 @@ function Login({ theme, onToggleTheme, onSignup, onForgotPassword }) {
 
             {hasGithub && (
               <button
+                type="button"
                 className="github-login-btn"
                 onClick={handleGithubLogin}
                 disabled={loading}
@@ -291,6 +349,7 @@ function Login({ theme, onToggleTheme, onSignup, onForgotPassword }) {
 
             {!hasLocal && !hasGoogle && !hasGithub && (
               <button
+                type="button"
                 className="continue-btn"
                 onClick={onSignup}
                 disabled={loading}

@@ -1,0 +1,826 @@
+/* =========================================================
+   Guest App
+   ========================================================= */
+
+.guest-app {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+
+  overflow: hidden;
+
+  background: var(--background);
+  color: var(--text);
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   Header
+   ========================================================= */
+
+.guest-header {
+  position: relative;
+  z-index: 10;
+
+  width: 100%;
+  height: 64px;
+  min-height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 20px;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid var(--border);
+
+  background: var(--surface);
+}
+
+.guest-brand {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.guest-logo {
+  width: 38px;
+  height: 38px;
+
+  flex: 0 0 auto;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+.guest-brand-text {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+}
+
+.guest-brand-text h1 {
+  margin: 0;
+
+  font-family: Georgia, "Times New Roman", serif;
+
+  font-size: 18px;
+  line-height: 20px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+
+  color: var(--text);
+}
+
+.guest-brand-text span {
+  margin-top: 1px;
+
+  font-size: 11px;
+  line-height: 14px;
+
+  color: var(--text-secondary);
+}
+
+.guest-badge {
+  margin-left: 8px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 28px;
+
+  padding: 0 10px;
+
+  border: 1px solid var(--input-border);
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 500;
+
+  color: var(--text-secondary);
+  background: transparent;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   Header Actions
+   ========================================================= */
+
+.guest-header-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  flex: 0 0 auto;
+}
+
+
+/*
+ * Reset only the guest header buttons so global button
+ * styles from the application cannot make the label
+ * disappear.
+ */
+
+.guest-header-actions button {
+  box-sizing: border-box;
+
+  font-family: inherit;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  text-decoration: none;
+
+  text-transform: none;
+
+  line-height: normal;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   Login Header Button
+   ========================================================= */
+
+.guest-login-header-button {
+  height: 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0;
+  padding: 0 15px;
+
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+
+  background: transparent !important;
+
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.guest-login-header-button:hover {
+  background: var(--input-background) !important;
+
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+
+.guest-login-header-button:active {
+  background: var(--input-background) !important;
+}
+
+
+/* =========================================================
+   Signup Header Button
+   ========================================================= */
+
+.guest-signup-header-button {
+  height: 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0;
+  padding: 0 15px;
+
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+
+  background: #ffffff !important;
+
+  color: #1f1f1f !important;
+  -webkit-text-fill-color: #1f1f1f !important;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.guest-signup-header-button:hover {
+  background: #e8e8e8 !important;
+  border-color: #e8e8e8 !important;
+
+  color: #1f1f1f !important;
+  -webkit-text-fill-color: #1f1f1f !important;
+}
+
+.guest-signup-header-button:active {
+  background: #dddddd !important;
+  border-color: #dddddd !important;
+}
+
+
+/* =========================================================
+   Header Button States
+   ========================================================= */
+
+.guest-login-header-button:focus-visible,
+.guest-signup-header-button:focus-visible {
+  outline: 2px solid var(--text-secondary);
+  outline-offset: 2px;
+}
+
+.guest-login-header-button:disabled,
+.guest-signup-header-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   Main Area
+   ========================================================= */
+
+.guest-main {
+  position: relative;
+
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  background: var(--background);
+}
+
+
+/* =========================================================
+   Messages
+   ========================================================= */
+
+.guest-messages {
+  flex: 1;
+  min-height: 0;
+
+  width: min(900px, calc(100% - 40px));
+
+  margin: 0 auto;
+
+  overflow-y: auto;
+
+  padding: 36px 0 150px;
+
+  box-sizing: border-box;
+
+  scroll-behavior: smooth;
+}
+
+.guest-messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.guest-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.guest-messages::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--input-border);
+}
+
+
+/* =========================================================
+   Welcome State
+   ========================================================= */
+
+.guest-welcome {
+  width: 100%;
+
+  min-height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 40px 20px 100px;
+
+  box-sizing: border-box;
+}
+
+.guest-welcome-logo {
+  width: 86px;
+  height: 86px;
+
+  flex: 0 0 auto;
+
+  display: block;
+
+  object-fit: contain;
+
+  margin-bottom: 18px;
+}
+
+.guest-welcome h2 {
+  margin: 0;
+
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 700;
+
+  color: var(--text);
+}
+
+.guest-welcome p {
+  margin: 8px 0 0;
+
+  font-size: 15px;
+  line-height: 22px;
+
+  color: var(--text-secondary);
+}
+
+.guest-welcome-note {
+  margin-top: 10px;
+
+  max-width: 520px;
+
+  font-size: 13px;
+  line-height: 20px;
+
+  color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   Individual Messages
+   ========================================================= */
+
+.guest-message {
+  width: 100%;
+
+  display: flex;
+
+  margin-bottom: 20px;
+}
+
+.guest-message.user-message {
+  justify-content: flex-end;
+}
+
+.guest-message.assistant-message {
+  justify-content: flex-start;
+}
+
+.guest-message-content {
+  max-width: min(760px, 85%);
+
+  padding: 12px 16px;
+
+  border-radius: 14px;
+
+  font-size: 15px;
+  line-height: 1.55;
+
+  word-break: break-word;
+}
+
+.user-message .guest-message-content {
+  background: var(--input-background);
+
+  border: 1px solid var(--input-border);
+
+  color: var(--text);
+
+  border-bottom-right-radius: 5px;
+}
+
+.assistant-message .guest-message-content {
+  color: var(--text);
+}
+
+.guest-message-content p {
+  margin: 0 0 10px;
+}
+
+.guest-message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.guest-message-content pre {
+  margin: 12px 0;
+
+  max-width: 100%;
+
+  overflow-x: auto;
+
+  padding: 14px;
+
+  border-radius: 8px;
+
+  background: var(--input-background);
+
+  border: 1px solid var(--input-border);
+}
+
+.guest-message-content code {
+  font-family:
+    "Cascadia Code",
+    "Consolas",
+    "Courier New",
+    monospace;
+
+  font-size: 13px;
+}
+
+.guest-message-content ul,
+.guest-message-content ol {
+  margin-top: 8px;
+  margin-bottom: 8px;
+
+  padding-left: 22px;
+}
+
+
+/* =========================================================
+   Thinking Indicator
+   ========================================================= */
+
+.guest-thinking {
+  display: inline-flex;
+  align-items: center;
+
+  font-size: 14px;
+
+  color: var(--text-secondary);
+}
+
+.guest-thinking-dots {
+  display: inline-flex;
+
+  margin-left: 3px;
+}
+
+.guest-thinking-dots span {
+  animation: guestDotPulse 1.4s infinite;
+}
+
+.guest-thinking-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.guest-thinking-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes guestDotPulse {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+  }
+
+  30% {
+    opacity: 1;
+  }
+}
+
+
+/* =========================================================
+   Input Area
+   ========================================================= */
+
+.guest-input-area {
+  position: absolute;
+
+  left: 50%;
+  bottom: 14px;
+
+  width: min(850px, calc(100% - 40px));
+
+  transform: translateX(-50%);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  z-index: 20;
+}
+
+.guest-error {
+  width: 100%;
+
+  margin-bottom: 8px;
+
+  padding: 8px 12px;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+
+  font-size: 13px;
+  line-height: 18px;
+
+  background: var(--input-background);
+  color: var(--text);
+}
+
+.guest-input-wrapper {
+  position: relative;
+
+  width: 100%;
+  min-height: 56px;
+
+  display: flex;
+  align-items: flex-end;
+
+  padding: 7px 8px 7px 16px;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--input-border);
+  border-radius: 16px;
+
+  background: var(--surface);
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.guest-input-wrapper:focus-within {
+  border-color: var(--text-secondary);
+}
+
+.guest-input-wrapper.input-disabled {
+  opacity: 0.75;
+}
+
+.guest-input-wrapper textarea {
+  flex: 1;
+
+  width: 100%;
+  min-width: 0;
+
+  min-height: 40px;
+  max-height: 120px;
+
+  margin: 0;
+  padding: 9px 8px 8px 0;
+
+  resize: none;
+
+  overflow-y: auto;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: var(--text);
+
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 20px;
+
+  box-sizing: border-box;
+}
+
+.guest-input-wrapper textarea::placeholder {
+  color: var(--text-secondary);
+
+  opacity: 0.9;
+}
+
+.guest-input-wrapper textarea:disabled {
+  cursor: not-allowed;
+}
+
+.guest-send-button {
+  width: 40px;
+  height: 40px;
+
+  flex: 0 0 auto;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 5px;
+  padding: 0;
+
+  box-sizing: border-box;
+
+  border: none;
+  border-radius: 11px;
+
+  background: var(--input-background);
+  color: var(--text);
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.guest-send-button:hover:not(:disabled) {
+  background: var(--input-border);
+}
+
+.guest-send-button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+.guest-send-button:focus-visible {
+  outline: 2px solid var(--text-secondary);
+  outline-offset: 2px;
+}
+
+.guest-input-hint {
+  margin-top: 7px;
+
+  font-size: 11px;
+  line-height: 15px;
+
+  text-align: center;
+
+  color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   Composer Expanded State
+   ========================================================= */
+
+.guest-input-wrapper.composer-expanded {
+  min-height: 130px;
+}
+
+.guest-input-wrapper.composer-expanded textarea {
+  max-height: 220px;
+}
+
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .guest-header {
+    height: 58px;
+    min-height: 58px;
+
+    padding: 0 12px;
+  }
+
+  .guest-brand {
+    gap: 8px;
+  }
+
+  .guest-logo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .guest-brand-text h1 {
+    font-size: 16px;
+  }
+
+  .guest-brand-text span {
+    display: none;
+  }
+
+  .guest-badge {
+    height: 26px;
+
+    margin-left: 4px;
+
+    padding: 0 8px;
+
+    font-size: 11px;
+  }
+
+  .guest-header-actions {
+    gap: 6px;
+  }
+
+  .guest-login-header-button,
+  .guest-signup-header-button {
+    height: 34px;
+
+    padding: 0 10px;
+
+    font-size: 12px;
+  }
+
+  .guest-messages {
+    width: calc(100% - 24px);
+
+    padding-top: 24px;
+  }
+
+  .guest-welcome {
+    padding: 30px 12px 100px;
+  }
+
+  .guest-welcome-logo {
+    width: 72px;
+    height: 72px;
+  }
+
+  .guest-welcome h2 {
+    font-size: 24px;
+    line-height: 30px;
+  }
+
+  .guest-welcome p {
+    font-size: 14px;
+  }
+
+  .guest-message-content {
+    max-width: 90%;
+
+    font-size: 14px;
+  }
+
+  .guest-input-area {
+    bottom: 10px;
+
+    width: calc(100% - 24px);
+  }
+
+  .guest-input-wrapper {
+    border-radius: 14px;
+  }
+
+  .guest-input-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 500px) {
+  .guest-brand-text {
+    display: none;
+  }
+
+  .guest-header-actions {
+    margin-left: auto;
+  }
+
+  .guest-login-header-button,
+  .guest-signup-header-button {
+    padding: 0 9px;
+  }
+
+  .guest-welcome-logo {
+    width: 64px;
+    height: 64px;
+  }
+
+  .guest-welcome h2 {
+    font-size: 22px;
+  }
+}

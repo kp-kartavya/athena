@@ -10,4 +10,4 @@ data:
   
   SPRING_DATASOURCE_URL: "jdbc:postgresql://athena-postgres:5432/athena"
   SPRING_DATASOURCE_USERNAME: "athena"
-  SPRING_DATASOURCE_PASSWORD: "athena123"
+  

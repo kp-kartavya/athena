@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Applies API rate limiting to authentication-related endpoints.
+ * Applies API rate limiting to authentication and public API endpoints.
  */
 @Component
 @RequiredArgsConstructor
@@ -29,6 +29,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
 	private static final int FORGOT_PASSWORD_LIMIT = 5;
 	private static final int RESET_PASSWORD_LIMIT = 10;
 	private static final int RESEND_PASSWORD_RESET_LIMIT = 5;
+
+	/*
+	 * Guest access is intentionally rate limited because it is a public endpoint
+	 * that can trigger RAG retrieval and an LLM request.
+	 */
+	private static final int GUEST_ASK_LIMIT = 10;
 
 	private final ApiRateLimitService apiRateLimitService;
 
@@ -67,6 +73,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
 		case "/api/auth/forgot-password" -> FORGOT_PASSWORD_LIMIT;
 		case "/api/auth/reset-password" -> RESET_PASSWORD_LIMIT;
 		case "/api/auth/resend-password-reset-code" -> RESEND_PASSWORD_RESET_LIMIT;
+
+		case "/api/guest/ask" -> GUEST_ASK_LIMIT;
+
 		default -> 0;
 		};
 	}

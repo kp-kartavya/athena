@@ -16,7 +16,7 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  z-index: 10;
+  z-index: 1000;
 }
 
 .login-card {
@@ -279,4 +279,63 @@
 .forgot-password-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* =========================
+   Guest access
+   ========================= */
+
+.guest-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 16px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.guest-divider::before,
+.guest-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.guest-login-btn {
+  width: 100%;
+  height: 46px;
+  padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.guest-login-btn:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.guest-login-btn:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.guest-login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.guest-note {
+  margin-top: 9px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
 }

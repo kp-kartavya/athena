@@ -1,0 +1,148 @@
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(0, 0, 0, 0.68);
+
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.auth-modal {
+  position: relative;
+
+  width: min(440px, 100%);
+  max-height: calc(100vh - 48px);
+
+  overflow-y: auto;
+
+  border-radius: 18px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  /* Removed the glow/shadow behind the modal */
+  box-shadow: none;
+
+  animation: authModalAppear 0.18s ease-out;
+}
+
+.auth-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+
+  z-index: 20;
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: transparent;
+  color: var(--text-secondary);
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.auth-modal-close:hover {
+  background: var(--input-background);
+  color: var(--text);
+}
+
+.auth-modal-close:focus-visible {
+  outline: 2px solid var(--text-secondary);
+  outline-offset: 2px;
+}
+
+.auth-modal .login-page,
+.auth-modal .signup-page {
+  min-height: auto;
+  width: 100%;
+
+  display: block;
+
+  background: transparent;
+}
+
+.auth-modal .login-theme-toggle,
+.auth-modal .signup-theme-toggle {
+  display: none;
+}
+
+.auth-modal .login-card,
+.auth-modal .signup-card {
+  width: 100%;
+  max-width: none;
+
+  min-height: auto;
+
+  margin: 0;
+
+  border: none;
+  border-radius: 18px;
+
+  box-shadow: none;
+}
+
+.auth-modal .login-card {
+  padding: 38px 34px 32px;
+}
+
+.auth-modal .signup-card {
+  padding: 38px 34px 32px;
+}
+
+.auth-modal .login-logo,
+.auth-modal .signup-logo {
+  width: 64px;
+  height: 64px;
+
+  margin-bottom: 12px;
+}
+
+@keyframes authModalAppear {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 600px) {
+  .auth-modal-overlay {
+    padding: 12px;
+  }
+
+  .auth-modal {
+    max-height: calc(100vh - 24px);
+    border-radius: 16px;
+  }
+
+  .auth-modal .login-card,
+  .auth-modal .signup-card {
+    padding: 36px 22px 26px;
+  }
+}

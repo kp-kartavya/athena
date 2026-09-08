@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import {
   BrowserRouter,
   Navigate,
@@ -8,14 +7,13 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-
 import "./App.css";
-
 import Chat from "./components/chat/Chat";
 import GuestChat from "./components/guestChat/GuestChat";
 import Login from "./components/login/Login";
 import Signup from "./components/signup/Signup";
 import VerifyEmail from "./components/verifyEmail/VerifyEmail";
+import { initializeCsrf } from "./api/csrf";
 
 const STORAGE_KEY = "interview-bot-theme";
 
@@ -59,7 +57,24 @@ function AppContent() {
   }, [theme]);
 
   useEffect(() => {
-    const loadCurrentUser = async () => {
+    const initializeApplication = async () => {
+      /*
+       * Initialize CSRF protection first.
+       *
+       * This ensures that the XSRF-TOKEN cookie exists before
+       * authenticated POST/DELETE requests are made.
+       *
+       * This is especially important after OAuth2 login because
+       * the browser returns to the application with a newly
+       * authenticated session.
+       */
+      try {
+        await initializeCsrf();
+      } catch (error) {
+        console.error("Failed to initialize CSRF protection:", error);
+      }
+
+      /* Determine whether the current browser session is authenticated. */
       try {
         const response = await fetch("/api/auth/me", {
           credentials: "include",
@@ -83,13 +98,15 @@ function AppContent() {
         } else {
           setCurrentUser(null);
         }
-      } catch {
+      } catch (error) {
+        console.error("Failed to load current user:", error);
+
         setAuthenticated(false);
         setCurrentUser(null);
       }
     };
 
-    loadCurrentUser();
+    initializeApplication();
   }, []);
 
   const handleSignup = () => {
@@ -143,18 +160,13 @@ function AppContent() {
     );
   }
 
-  /*
-   * Guests cannot directly access the authenticated chat.
-   */
+  /* Guests cannot directly access the authenticated chat. */
   if (location.pathname === "/chat") {
     return <Navigate to="/" replace />;
   }
 
   return (
     <Routes>
-      {/* =========================
-          Guest Homepage
-          ========================= */}
       <Route
         path="/"
         element={
@@ -166,9 +178,6 @@ function AppContent() {
         }
       />
 
-      {/* =========================
-          Login Page
-          ========================= */}
       <Route
         path="/login"
         element={
@@ -182,9 +191,6 @@ function AppContent() {
         }
       />
 
-      {/* =========================
-          Signup Page
-          ========================= */}
       <Route
         path="/signup"
         element={
@@ -197,9 +203,6 @@ function AppContent() {
         }
       />
 
-      {/* =========================
-          Email Verification
-          ========================= */}
       <Route
         path="/verify-email"
         element={
@@ -213,9 +216,6 @@ function AppContent() {
         }
       />
 
-      {/* =========================
-          Unknown Route
-          ========================= */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

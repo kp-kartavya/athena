@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  Menu,
   Plus,
   MessageSquare,
   Trash2,
@@ -17,17 +16,6 @@ import "./sidebar.css";
 import LoadingWidget from "../loading/LoadingWidget";
 import { getCsrfHeaders } from "../../api/csrf";
 
-/**
- * Provides the application sidebar for chat navigation and user controls.
- *
- * Supports expanded, collapsed, and mobile layouts. In the expanded
- * desktop layout, the collapse button is displayed beside the Athena
- * branding. In the collapsed layout, the Athena logo becomes the
- * control used to expand the sidebar.
- *
- * In collapsed mode, the authenticated user's initials open the
- * profile menu containing theme and logout controls.
- */
 const Sidebar = ({
   activeChatId,
   onSelectChat,
@@ -37,6 +25,13 @@ const Sidebar = ({
   theme,
   onToggleTheme,
   currentUser,
+  refreshKey,
+  disabled = false,
+
+  // Guest mode
+  isGuest = false,
+  onLogin,
+  onSignup,
 }) => {
   const [chats, setChats] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,6 +41,10 @@ const Sidebar = ({
   const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
+    if (isGuest) {
+      return;
+    }
+
     let cancelled = false;
 
     const fetchChats = async () => {
@@ -58,6 +57,7 @@ const Sidebar = ({
       } catch (error) {
         if (!cancelled) {
           console.error("Failed to load chats:", error);
+          setChats([]);
         }
       }
     };
@@ -67,7 +67,7 @@ const Sidebar = ({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isGuest, refreshKey]);
 
   const handleCollapse = () => {
     setCollapsed(true);
@@ -80,18 +80,39 @@ const Sidebar = ({
   };
 
   const handleNewChat = () => {
-    onNewChat();
+    if (disabled) {
+      return;
+    }
+
+    if (onNewChat) {
+      onNewChat();
+    }
+
     onMobileClose?.();
+
     setProfileMenuOpen(false);
+    setSearchQuery("");
   };
 
   const handleSelectChat = (chatId) => {
-    onSelectChat(chatId);
+    if (disabled) {
+      return;
+    }
+
+    if (onSelectChat) {
+      onSelectChat(chatId);
+    }
+
     onMobileClose?.();
+
     setProfileMenuOpen(false);
   };
 
   const handleDeleteChat = async (chatId) => {
+    if (disabled || isGuest) {
+      return;
+    }
+
     try {
       await deleteChat(chatId);
 
@@ -100,7 +121,7 @@ const Sidebar = ({
       );
 
       if (activeChatId === chatId) {
-        onNewChat();
+        onNewChat?.();
       }
     } catch (error) {
       console.error("Failed to delete chat:", error);
@@ -125,47 +146,76 @@ const Sidebar = ({
         },
         credentials: "include",
       });
+    } catch (error) {
+      console.error("Logout failed:", error);
     } finally {
       window.location.href = "/";
     }
   };
 
+  const handleLogin = () => {
+    onMobileClose?.();
+    setProfileMenuOpen(false);
+
+    if (onLogin) {
+      onLogin();
+    }
+  };
+
+  const handleSignup = () => {
+    onMobileClose?.();
+    setProfileMenuOpen(false);
+
+    if (onSignup) {
+      onSignup();
+    }
+  };
+
   const filteredChats = chats.filter((chat) => {
     const title = chat.title ?? "";
+    const query = searchQuery.trim().toLowerCase();
 
-    return title.toLowerCase().includes(searchQuery.trim().toLowerCase());
+    if (!query) {
+      return true;
+    }
+
+    return title.toLowerCase().includes(query);
   });
 
   const getInitial = () => {
-    return currentUser?.initial || "?";
+    if (currentUser?.initial) {
+      return currentUser.initial;
+    }
+
+    if (currentUser?.name) {
+      return currentUser.name.charAt(0).toUpperCase();
+    }
+
+    return "?";
   };
 
   return (
     <>
       <LoadingWidget visible={loggingOut} message="Signing you out..." />
+
       <aside
         className={`sidebar ${
           collapsed ? "collapsed" : ""
-        } ${mobileOpen ? "mobile-open" : ""}`}
+        } ${mobileOpen ? "mobile-open" : ""} ${isGuest ? "guest-sidebar" : ""}`}
       >
-        {/* Header */}
         <div className="sidebar-header">
-          {collapsed ? (
-            <button
-              type="button"
-              className="sidebar-logo-button"
-              onClick={handleExpand}
-              title="Expand sidebar"
-              aria-label="Expand sidebar"
-            >
-              <img src={logo} alt="Athena" className="sidebar-logo" />
-            </button>
-          ) : (
+          {!collapsed && (
             <>
               <div className="sidebar-brand">
                 <img src={logo} alt="Athena" className="sidebar-logo" />
 
-                <span className="sidebar-brand-name">ATHENA</span>
+                <div className="sidebar-brand-text">
+                  <span className="sidebar-brand-name">ATHENA</span>
+
+                  <span className="sidebar-brand-subtitle">
+                    Technical Interview Assistant
+                  </span>
+                </div>
               </div>
 
               <button
@@ -174,11 +224,27 @@ const Sidebar = ({
                 onClick={handleCollapse}
                 title="Collapse sidebar"
                 aria-label="Collapse sidebar"
+                disabled={disabled}
               >
                 <PanelLeftClose size={20} />
               </button>
             </>
           )}
+
+          {collapsed && (
+            <button
+              type="button"
+              className="sidebar-logo-button"
+              onClick={handleExpand}
+              title="Expand sidebar"
+              aria-label="Expand sidebar"
+              disabled={disabled}
+            >
+              <img src={logo} alt="Athena" className="sidebar-logo" />
+            </button>
+          )}
+
+          {/* Mobile close button */}
 
           <button
             type="button"
@@ -187,21 +253,25 @@ const Sidebar = ({
             title="Close sidebar"
             aria-label="Close sidebar"
           >
-            <Menu size={20} />
+            <X size={20} />
           </button>
         </div>
 
-        {/* Main Content */}
         <div className="sidebar-content">
+          {/* New Chat */}
+
           <button
             type="button"
             className="new-chat-button"
             onClick={handleNewChat}
+            disabled={disabled}
           >
             <Plus size={20} />
 
             <span className="new-chat-text">New chat</span>
           </button>
+
+          {/* Search */}
 
           <div className="sidebar-search">
             <Search size={17} />
@@ -211,6 +281,7 @@ const Sidebar = ({
               placeholder="Search chats..."
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
+              disabled={disabled || isGuest}
             />
 
             {searchQuery && (
@@ -229,7 +300,13 @@ const Sidebar = ({
             <div className="recent-chats-title">Recent</div>
 
             <div className="recent-chats-list">
-              {filteredChats.length === 0 ? (
+              {isGuest ? (
+                <div className="no-chats">
+                  <MessageSquare size={17} />
+
+                  <span>Guest chats are not saved</span>
+                </div>
+              ) : filteredChats.length === 0 ? (
                 <div className="no-chats">
                   <MessageSquare size={17} />
 
@@ -247,6 +324,7 @@ const Sidebar = ({
                       type="button"
                       className="chat-item-button"
                       onClick={() => handleSelectChat(chat.id)}
+                      disabled={disabled}
                     >
                       <MessageSquare size={17} />
 
@@ -261,6 +339,7 @@ const Sidebar = ({
                       onClick={() => setDeleteChatId(chat.id)}
                       title="Delete chat"
                       aria-label="Delete chat"
+                      disabled={disabled}
                     >
                       <Trash2 size={15} />
                     </button>
@@ -271,103 +350,156 @@ const Sidebar = ({
           </div>
         </div>
 
-        {/* User Footer */}
-        <div className="sidebar-footer">
-          <div className="sidebar-user">
-            <button
-              type="button"
-              className="sidebar-user-profile-button"
-              onClick={() => {
-                if (collapsed) {
-                  setProfileMenuOpen((open) => !open);
-                }
-              }}
-              aria-label="Open profile menu"
-            >
-              <div className="sidebar-user-avatar">{getInitial()}</div>
-
-              <div className="sidebar-user-info">
-                <span className="sidebar-user-name">
-                  {currentUser?.name ?? "User"}
-                </span>
-
-                <span className="sidebar-user-theme-label">
-                  {theme === "dark" ? "Dark" : "Light"}
-                </span>
+        {isGuest ? (
+          <div className="sidebar-footer">
+            <div className="guest-sidebar-footer-card">
+              <div className="guest-sidebar-footer-title">
+                Get more with Athena
               </div>
-            </button>
 
-            <button
-              type="button"
-              className="sidebar-theme-button"
-              onClick={onToggleTheme}
-              title="Toggle theme"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? <Moon size={16} /> : <Sun size={16} />}
-            </button>
+              <p>
+                Log in to save your conversations and access them from your
+                recent chats.
+              </p>
 
-            <button
-              type="button"
-              className="logout-button"
-              onClick={handleLogout}
-              disabled={loggingOut}
-              title="Logout"
-              aria-label="Logout"
-            >
-              <LogOut size={18} />
-            </button>
+              <button type="button" onClick={handleLogin}>
+                Log in
+              </button>
+
+              <button
+                type="button"
+                className="guest-sidebar-signup-button"
+                onClick={handleSignup}
+              >
+                Sign up for free
+              </button>
+            </div>
+
+            {/* Guest Profile */}
+
+            <div className="sidebar-user guest-sidebar-user">
+              <div className="sidebar-user-profile-button">
+                <div className="sidebar-user-avatar guest-avatar">G</div>
+
+                <div className="sidebar-user-info">
+                  <span className="sidebar-user-name">Guest</span>
+
+                  <span className="sidebar-user-theme-label">
+                    {theme === "dark" ? "Dark" : "Light"}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="sidebar-theme-button"
+                onClick={onToggleTheme}
+                title="Toggle theme"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? <Moon size={16} /> : <Sun size={16} />}
+              </button>
+            </div>
           </div>
+        ) : (
+          <div className="sidebar-footer">
+            <div className="sidebar-user">
+              <button
+                type="button"
+                className="sidebar-user-profile-button"
+                onClick={() => {
+                  if (collapsed) {
+                    setProfileMenuOpen((open) => !open);
+                  }
+                }}
+                aria-label="Open profile menu"
+              >
+                <div className="sidebar-user-avatar">{getInitial()}</div>
 
-          {/* Collapsed Profile Menu */}
-          {profileMenuOpen && collapsed && (
-            <div className="collapsed-profile-menu">
-              <div className="profile-menu-header">
-                <div className="profile-menu-avatar">{getInitial()}</div>
-
-                <div className="profile-menu-user">
-                  <span className="profile-menu-name">
+                <div className="sidebar-user-info">
+                  <span className="sidebar-user-name">
                     {currentUser?.name ?? "User"}
                   </span>
 
-                  <span className="profile-menu-provider">Go</span>
+                  <span className="sidebar-user-theme-label">
+                    {theme === "dark" ? "Dark" : "Light"}
+                  </span>
                 </div>
-              </div>
-
-              <div className="profile-menu-divider" />
-
-              <button
-                type="button"
-                className="profile-menu-theme"
-                onClick={onToggleTheme}
-              >
-                <div className="profile-menu-theme-label">
-                  {theme === "dark" ? <Moon size={18} /> : <Sun size={18} />}
-
-                  <span>{theme === "dark" ? "Dark mode" : "Light mode"}</span>
-                </div>
-
-                <span className="profile-menu-theme-state">
-                  {theme === "dark" ? "Dark" : "Light"}
-                </span>
               </button>
 
               <button
                 type="button"
-                className="profile-menu-item"
+                className="sidebar-theme-button"
+                onClick={onToggleTheme}
+                title="Toggle theme"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? <Moon size={16} /> : <Sun size={16} />}
+              </button>
+
+              <button
+                type="button"
+                className="logout-button"
                 onClick={handleLogout}
                 disabled={loggingOut}
+                title="Logout"
+                aria-label="Logout"
               >
                 <LogOut size={18} />
-                <span>Log out</span>
               </button>
             </div>
-          )}
-        </div>
+
+            {/* Collapsed Profile Menu */}
+
+            {profileMenuOpen && collapsed && (
+              <div className="collapsed-profile-menu">
+                <div className="profile-menu-header">
+                  <div className="profile-menu-avatar">{getInitial()}</div>
+
+                  <div className="profile-menu-user">
+                    <span className="profile-menu-name">
+                      {currentUser?.name ?? "User"}
+                    </span>
+
+                    <span className="profile-menu-provider">Go</span>
+                  </div>
+                </div>
+
+                <div className="profile-menu-divider" />
+
+                <button
+                  type="button"
+                  className="profile-menu-theme"
+                  onClick={onToggleTheme}
+                >
+                  <div className="profile-menu-theme-label">
+                    {theme === "dark" ? <Moon size={18} /> : <Sun size={18} />}
+
+                    <span>{theme === "dark" ? "Dark mode" : "Light mode"}</span>
+                  </div>
+
+                  <span className="profile-menu-theme-state">
+                    {theme === "dark" ? "Dark" : "Light"}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  className="profile-menu-item"
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                >
+                  <LogOut size={18} />
+
+                  <span>Log out</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </aside>
 
-      {/* Delete Chat Dialog */}
-      {deleteChatId !== null && (
+      {deleteChatId !== null && !isGuest && (
         <div className="delete-chat-overlay">
           <div className="delete-chat-dialog">
             <h3>Delete chat?</h3>

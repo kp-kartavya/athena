@@ -1,380 +1,200 @@
 /* =========================================================
-   Guest App
+   GUEST APP
    ========================================================= */
 
 .guest-app {
-  position: fixed;
-  inset: 0;
-
+  width: 100%;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-
-  width: 100%;
-  min-width: 0;
-  min-height: 0;
-
+  background: var(--bg);
+  color: var(--text);
   overflow: hidden;
-
-  background: var(--background);
-  color: var(--text);
-
-  box-sizing: border-box;
-}
-
-
-/* =========================================================
-   Header
-   ========================================================= */
-
-.guest-header {
   position: relative;
-  z-index: 10;
-
-  width: 100%;
-  height: 64px;
-  min-height: 64px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 20px;
-
-  box-sizing: border-box;
-
-  border-bottom: 1px solid var(--border);
-
-  background: var(--surface);
 }
-
-.guest-brand {
-  min-width: 0;
-
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-}
-
-.guest-logo {
-  width: 38px;
-  height: 38px;
-
-  flex: 0 0 auto;
-
-  display: block;
-
-  object-fit: contain;
-}
-
-.guest-brand-text {
-  min-width: 0;
-
-  display: flex;
-  flex-direction: column;
-
-  justify-content: center;
-}
-
-.guest-brand-text h1 {
-  margin: 0;
-
-  font-family: Georgia, "Times New Roman", serif;
-
-  font-size: 18px;
-  line-height: 20px;
-  font-weight: 700;
-  letter-spacing: 1.2px;
-
-  color: var(--text);
-}
-
-.guest-brand-text span {
-  margin-top: 1px;
-
-  font-size: 11px;
-  line-height: 14px;
-
-  color: var(--text-secondary);
-}
-
-.guest-badge {
-  margin-left: 8px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  height: 28px;
-
-  padding: 0 10px;
-
-  border: 1px solid var(--input-border);
-  border-radius: 999px;
-
-  font-size: 12px;
-  font-weight: 500;
-
-  color: var(--text-secondary);
-  background: transparent;
-
-  white-space: nowrap;
-}
-
 
 /* =========================================================
-   Header Actions
+   TOP-RIGHT ACTIONS
+   No separate header bar — actions float over the main area.
    ========================================================= */
 
-.guest-header-actions {
+.guest-main-actions {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+
   display: flex;
   align-items: center;
+  gap: 8px;
 
-  gap: 10px;
-
-  flex: 0 0 auto;
+  z-index: 40;
 }
 
-
-/*
- * Reset only the guest header buttons so global button
- * styles from the application cannot make the label
- * disappear.
- */
-
-.guest-header-actions button {
-  box-sizing: border-box;
-
-  font-family: inherit;
-
-  appearance: none;
-  -webkit-appearance: none;
-
-  text-decoration: none;
-
-  text-transform: none;
-
-  line-height: normal;
-
-  white-space: nowrap;
-}
-
-
-/* =========================================================
-   Login Header Button
-   ========================================================= */
-
-.guest-login-header-button {
+.guest-login-header-button,
+.guest-signup-header-button {
   height: 36px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  margin: 0;
   padding: 0 15px;
 
-  border: 1px solid var(--input-border);
-  border-radius: 8px;
-
-  background: transparent !important;
-
-  color: var(--text) !important;
-  -webkit-text-fill-color: var(--text) !important;
+  border-radius: 999px;
 
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
 
   cursor: pointer;
 
   transition:
     background 0.15s ease,
     border-color 0.15s ease,
-    color 0.15s ease;
+    transform 0.1s ease;
+}
+
+.guest-login-header-button {
+  border: 1px solid var(--text);
+  background: var(--text);
+  color: var(--bg);
 }
 
 .guest-login-header-button:hover {
-  background: var(--input-background) !important;
-
-  color: var(--text) !important;
-  -webkit-text-fill-color: var(--text) !important;
+  opacity: 0.9;
 }
-
-.guest-login-header-button:active {
-  background: var(--input-background) !important;
-}
-
-
-/* =========================================================
-   Signup Header Button
-   ========================================================= */
 
 .guest-signup-header-button {
-  height: 36px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  margin: 0;
-  padding: 0 15px;
-
-  border: 1px solid #ffffff;
-  border-radius: 8px;
-
-  background: #ffffff !important;
-
-  color: #1f1f1f !important;
-  -webkit-text-fill-color: #1f1f1f !important;
-
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
-
-  cursor: pointer;
-
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
 }
 
 .guest-signup-header-button:hover {
-  background: #e8e8e8 !important;
-  border-color: #e8e8e8 !important;
-
-  color: #1f1f1f !important;
-  -webkit-text-fill-color: #1f1f1f !important;
+  background: var(--surface-hover);
 }
 
+.guest-login-header-button:active,
 .guest-signup-header-button:active {
-  background: #dddddd !important;
-  border-color: #dddddd !important;
+  transform: scale(0.98);
 }
-
 
 /* =========================================================
-   Header Button States
+   BODY
    ========================================================= */
 
-.guest-login-header-button:focus-visible,
-.guest-signup-header-button:focus-visible {
-  outline: 2px solid var(--text-secondary);
-  outline-offset: 2px;
-}
-
-.guest-login-header-button:disabled,
-.guest-signup-header-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-
-/* =========================================================
-   Main Area
-   ========================================================= */
-
-.guest-main {
-  position: relative;
-
+.guest-body {
   flex: 1;
   min-height: 0;
 
   display: flex;
-  flex-direction: column;
+
+  position: relative;
 
   overflow: hidden;
-
-  background: var(--background);
 }
 
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.guest-main {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  position: relative;
+
+  background: var(--bg);
+
+  overflow: hidden;
+}
 
 /* =========================================================
-   Messages
+   MOBILE SIDEBAR BUTTON
+   ========================================================= */
+
+.guest-mobile-menu-button {
+  display: none;
+
+  position: absolute;
+
+  top: 12px;
+  left: 12px;
+
+  z-index: 30;
+
+  width: 40px;
+  height: 40px;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   MESSAGES
    ========================================================= */
 
 .guest-messages {
   flex: 1;
   min-height: 0;
 
-  width: min(900px, calc(100% - 40px));
-
-  margin: 0 auto;
+  width: 100%;
 
   overflow-y: auto;
+  overflow-x: hidden;
 
-  padding: 36px 0 150px;
+  padding: 74px 24px 20px;
 
   box-sizing: border-box;
 
   scroll-behavior: smooth;
 }
 
-.guest-messages::-webkit-scrollbar {
-  width: 8px;
-}
-
-.guest-messages::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.guest-messages::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: var(--input-border);
-}
-
-
 /* =========================================================
-   Welcome State
+   WELCOME
    ========================================================= */
 
 .guest-welcome {
   width: 100%;
+  max-width: 850px;
 
-  min-height: 100%;
+  margin: 0 auto;
 
   display: flex;
   flex-direction: column;
-
   align-items: center;
-  justify-content: center;
 
   text-align: center;
 
-  padding: 40px 20px 100px;
+  padding: 30px 20px 10px;
 
   box-sizing: border-box;
 }
 
-.guest-welcome-logo {
-  width: 86px;
-  height: 86px;
-
-  flex: 0 0 auto;
-
-  display: block;
-
-  object-fit: contain;
-
-  margin-bottom: 18px;
-}
-
 .guest-welcome h2 {
-  margin: 0;
+  margin: 0 0 10px;
 
   font-size: 28px;
-  line-height: 36px;
-  font-weight: 700;
+  font-weight: 600;
 
   color: var(--text);
 }
 
 .guest-welcome p {
-  margin: 8px 0 0;
+  margin: 0;
 
-  font-size: 15px;
-  line-height: 22px;
+  font-size: 14px;
+  line-height: 1.5;
 
   color: var(--text-secondary);
 }
@@ -382,25 +202,24 @@
 .guest-welcome-note {
   margin-top: 10px;
 
-  max-width: 520px;
-
-  font-size: 13px;
-  line-height: 20px;
+  font-size: 12px;
 
   color: var(--text-secondary);
 }
 
-
 /* =========================================================
-   Individual Messages
+   CHAT MESSAGES
    ========================================================= */
 
 .guest-message {
   width: 100%;
+  max-width: 850px;
 
   display: flex;
 
-  margin-bottom: 20px;
+  margin: 0 auto 20px;
+
+  box-sizing: border-box;
 }
 
 .guest-message.user-message {
@@ -411,97 +230,119 @@
   justify-content: flex-start;
 }
 
-.guest-message-content {
-  max-width: min(760px, 85%);
+.guest-message.user-message .guest-message-content {
+  max-width: 70%;
 
-  padding: 12px 16px;
+  padding: 11px 15px;
 
   border-radius: 14px;
 
-  font-size: 15px;
-  line-height: 1.55;
+  background: var(--user-message-bg);
+
+  color: var(--text);
+
+  line-height: 1.5;
 
   word-break: break-word;
 }
 
-.user-message .guest-message-content {
-  background: var(--input-background);
+.guest-message.assistant-message .guest-message-content {
+  max-width: 80%;
 
-  border: 1px solid var(--input-border);
+  padding: 11px 0;
 
   color: var(--text);
 
-  border-bottom-right-radius: 5px;
+  line-height: 1.6;
+
+  word-break: break-word;
+
+  overflow-wrap: anywhere;
 }
 
-.assistant-message .guest-message-content {
-  color: var(--text);
-}
+/* Markdown */
 
 .guest-message-content p {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
 }
 
 .guest-message-content p:last-child {
   margin-bottom: 0;
 }
 
-.guest-message-content pre {
-  margin: 12px 0;
-
-  max-width: 100%;
-
-  overflow-x: auto;
-
-  padding: 14px;
-
-  border-radius: 8px;
-
-  background: var(--input-background);
-
-  border: 1px solid var(--input-border);
-}
-
-.guest-message-content code {
-  font-family:
-    "Cascadia Code",
-    "Consolas",
-    "Courier New",
-    monospace;
-
-  font-size: 13px;
+.guest-message-content h1,
+.guest-message-content h2,
+.guest-message-content h3 {
+  margin-top: 18px;
+  margin-bottom: 10px;
 }
 
 .guest-message-content ul,
 .guest-message-content ol {
-  margin-top: 8px;
-  margin-bottom: 8px;
-
-  padding-left: 22px;
+  margin: 8px 0 12px;
+  padding-left: 24px;
 }
 
+.guest-message-content li {
+  margin-bottom: 5px;
+}
+
+.guest-message-content pre {
+  margin: 14px 0;
+  padding: 14px;
+
+  overflow-x: auto;
+
+  background: var(--sidebar-bg);
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  box-sizing: border-box;
+}
+
+.guest-message-content code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+}
+
+.guest-message-content :not(pre) > code {
+  padding: 2px 5px;
+
+  background: var(--user-message-bg);
+
+  border-radius: 4px;
+
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+}
 
 /* =========================================================
-   Thinking Indicator
+   THINKING
    ========================================================= */
 
 .guest-thinking {
-  display: inline-flex;
+  display: flex;
   align-items: center;
 
-  font-size: 14px;
+  gap: 4px;
 
   color: var(--text-secondary);
+
+  font-size: 14px;
 }
 
 .guest-thinking-dots {
   display: inline-flex;
-
-  margin-left: 3px;
+  margin-left: 2px;
 }
 
 .guest-thinking-dots span {
-  animation: guestDotPulse 1.4s infinite;
+  animation: guest-thinking 1.4s infinite;
+}
+
+.guest-thinking-dots span:nth-child(1) {
+  animation-delay: 0s;
 }
 
 .guest-thinking-dots span:nth-child(2) {
@@ -512,11 +353,11 @@
   animation-delay: 0.4s;
 }
 
-@keyframes guestDotPulse {
+@keyframes guest-thinking {
   0%,
   60%,
   100% {
-    opacity: 0.25;
+    opacity: 0.2;
   }
 
   30% {
@@ -524,77 +365,77 @@
   }
 }
 
-
 /* =========================================================
-   Input Area
+   INPUT AREA
    ========================================================= */
 
 .guest-input-area {
-  position: absolute;
+  width: 100%;
 
-  left: 50%;
-  bottom: 14px;
+  flex-shrink: 0;
 
-  width: min(850px, calc(100% - 40px));
+  padding: 10px 24px 18px;
 
-  transform: translateX(-50%);
+  box-sizing: border-box;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background: var(--bg);
 
   z-index: 20;
 }
 
 .guest-error {
   width: 100%;
+  max-width: 850px;
 
-  margin-bottom: 8px;
+  margin: 0 auto 8px;
 
   padding: 8px 12px;
 
   box-sizing: border-box;
 
-  border: 1px solid var(--input-border);
+  border: 1px solid rgba(239, 68, 68, 0.35);
   border-radius: 8px;
 
-  font-size: 13px;
-  line-height: 18px;
+  color: #ef4444;
 
-  background: var(--input-background);
-  color: var(--text);
+  font-size: 12px;
 }
+
+/* =========================================================
+   INPUT WRAPPER
+   ========================================================= */
 
 .guest-input-wrapper {
   position: relative;
 
   width: 100%;
+  max-width: 850px;
+
   min-height: 56px;
+
+  margin: 0 auto;
 
   display: flex;
   align-items: flex-end;
 
-  padding: 7px 8px 7px 16px;
+  gap: 6px;
+
+  padding: 8px 8px 8px 14px;
 
   box-sizing: border-box;
 
-  border: 1px solid var(--input-border);
-  border-radius: 16px;
-
   background: var(--surface);
 
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+  border: 1px solid var(--input-border);
+
+  border-radius: 14px;
 }
 
 .guest-input-wrapper:focus-within {
-  border-color: var(--text-secondary);
+  border-color: var(--input-border);
 }
 
-.guest-input-wrapper.input-disabled {
-  opacity: 0.75;
-}
+/* Textarea */
 
 .guest-input-wrapper textarea {
   flex: 1;
@@ -602,198 +443,251 @@
   width: 100%;
   min-width: 0;
 
-  min-height: 40px;
-  max-height: 120px;
+  min-height: 38px;
+  max-height: 200px;
 
   margin: 0;
-  padding: 9px 8px 8px 0;
+
+  padding: 9px 4px;
+
+  box-sizing: border-box;
+
+  border: none;
+  outline: none;
 
   resize: none;
 
   overflow-y: auto;
 
-  border: none;
-  outline: none;
-
   background: transparent;
-
   color: var(--text);
 
   font-family: inherit;
-  font-size: 15px;
-  line-height: 20px;
-
-  box-sizing: border-box;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .guest-input-wrapper textarea::placeholder {
   color: var(--text-secondary);
-
-  opacity: 0.9;
 }
 
-.guest-input-wrapper textarea:disabled {
-  cursor: not-allowed;
-}
+/* =========================================================
+   SEND BUTTON
+   ========================================================= */
 
 .guest-send-button {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
 
-  flex: 0 0 auto;
+  flex-shrink: 0;
 
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
 
-  margin-left: 5px;
   padding: 0;
 
-  box-sizing: border-box;
-
   border: none;
-  border-radius: 11px;
+  border-radius: 9px;
 
-  background: var(--input-background);
-  color: var(--text);
+  background: var(--button-bg);
+  color: var(--button-text);
 
   cursor: pointer;
-
-  transition:
-    background 0.15s ease,
-    opacity 0.15s ease;
 }
 
 .guest-send-button:hover:not(:disabled) {
-  background: var(--input-border);
+  opacity: 0.85;
 }
 
 .guest-send-button:disabled {
-  opacity: 0.4;
+  background: var(--input-border);
+  color: var(--text-secondary);
 
-  cursor: not-allowed;
+  cursor: default;
 }
 
-.guest-send-button:focus-visible {
-  outline: 2px solid var(--text-secondary);
-  outline-offset: 2px;
-}
+/* =========================================================
+   INPUT HINT
+   ========================================================= */
 
 .guest-input-hint {
-  margin-top: 7px;
+  width: 100%;
+  max-width: 850px;
 
-  font-size: 11px;
-  line-height: 15px;
+  margin: 7px auto 0;
 
   text-align: center;
 
   color: var(--text-secondary);
+
+  font-size: 11px;
 }
 
-
 /* =========================================================
-   Composer Expanded State
+   EXPANDED COMPOSER
    ========================================================= */
 
 .guest-input-wrapper.composer-expanded {
-  min-height: 130px;
+  height: 70vh;
+
+  align-items: flex-end;
+
+  padding-top: 52px;
 }
 
 .guest-input-wrapper.composer-expanded textarea {
-  max-height: 220px;
+  height: 100% !important;
+
+  max-height: none;
+
+  align-self: stretch;
+
+  padding-top: 8px;
+  padding-bottom: 48px;
+
+  overflow-y: auto;
 }
 
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+.guest-messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.guest-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.guest-messages::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 10px;
+}
+
+.guest-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
 
 /* =========================================================
-   Responsive
+   MOBILE
    ========================================================= */
 
 @media (max-width: 768px) {
-  .guest-header {
-    height: 58px;
-    min-height: 58px;
-
-    padding: 0 12px;
-  }
-
-  .guest-brand {
-    gap: 8px;
-  }
-
-  .guest-logo {
-    width: 34px;
-    height: 34px;
-  }
-
-  .guest-brand-text h1 {
-    font-size: 16px;
-  }
-
-  .guest-brand-text span {
-    display: none;
-  }
-
-  .guest-badge {
-    height: 26px;
-
-    margin-left: 4px;
-
-    padding: 0 8px;
-
-    font-size: 11px;
-  }
-
-  .guest-header-actions {
-    gap: 6px;
+  .guest-main-actions {
+    top: 10px;
+    right: 10px;
+    gap: 5px;
   }
 
   .guest-login-header-button,
   .guest-signup-header-button {
-    height: 34px;
+    height: 32px;
+    padding: 0 11px;
+    font-size: 11px;
+  }
 
-    padding: 0 10px;
+  /*
+   * Sidebar becomes mobile overlay.
+   */
 
-    font-size: 12px;
+  .guest-sidebar-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    border: none;
+
+    z-index: 90;
+  }
+
+  .guest-mobile-menu-button {
+    display: flex;
   }
 
   .guest-messages {
-    width: calc(100% - 24px);
-
-    padding-top: 24px;
+    padding: 64px 12px 20px;
   }
 
   .guest-welcome {
-    padding: 30px 12px 100px;
-  }
-
-  .guest-welcome-logo {
-    width: 72px;
-    height: 72px;
+    padding: 35px 12px 10px;
   }
 
   .guest-welcome h2 {
-    font-size: 24px;
-    line-height: 30px;
+    font-size: 23px;
   }
 
   .guest-welcome p {
-    font-size: 14px;
+    font-size: 13px;
   }
 
-  .guest-message-content {
-    max-width: 90%;
+  .guest-message {
+    max-width: 100%;
+  }
 
-    font-size: 14px;
+  .guest-message.user-message .guest-message-content {
+    max-width: 88%;
+  }
+
+  .guest-message.assistant-message .guest-message-content {
+    max-width: 96%;
   }
 
   .guest-input-area {
-    bottom: 10px;
-
-    width: calc(100% - 24px);
+    padding: 8px 10px max(12px, env(safe-area-inset-bottom));
   }
 
   .guest-input-wrapper {
-    border-radius: 14px;
+    min-height: 52px;
+
+    padding: 6px 6px 6px 10px;
+
+    border-radius: 12px;
+
+    gap: 4px;
+  }
+
+  .guest-input-wrapper textarea {
+    min-height: 38px;
+    max-height: 120px;
+
+    padding: 9px 3px;
+
+    font-size: 14px;
+  }
+
+  .guest-send-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .guest-input-hint {
+    font-size: 9px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .guest-main-actions {
+    right: 8px;
+    gap: 4px;
+  }
+
+  .guest-login-header-button,
+  .guest-signup-header-button {
+    padding: 0 9px;
+    font-size: 10px;
+  }
+
+  .guest-messages {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .guest-input-hint {
@@ -801,26 +695,341 @@
   }
 }
 
-@media (max-width: 500px) {
-  .guest-brand-text {
-    display: none;
+/* =========================================================
+   QUICK QUESTIONS
+   ========================================================= */
+
+.quick-questions {
+  width: 100%;
+  max-width: 800px;
+  margin: 26px auto 0;
+  text-align: left;
+}
+
+.quick-questions-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.quick-questions-header h3 {
+  margin: 0 0 4px;
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.quick-questions-header p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.quick-question-count {
+  flex-shrink: 0;
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+/* Category */
+
+.quick-question-category {
+  margin-bottom: 18px;
+}
+
+.quick-question-category h4 {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Question grid */
+
+.quick-question-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+/* Individual question */
+
+.quick-question-button {
+  width: 100%;
+  min-height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 9px 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: transparent;
+  color: var(--text);
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.quick-question-button:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--input-border);
+}
+
+.quick-question-button:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.quick-question-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quick-question-button span:first-child {
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.quick-question-arrow {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  transition: transform 0.15s ease;
+}
+
+.quick-question-button:hover:not(:disabled) .quick-question-arrow {
+  transform: translateX(3px);
+  color: var(--text);
+}
+
+/* =========================================================
+   EXPLORE MORE
+   ========================================================= */
+
+.explore-questions-button {
+  width: 100%;
+  height: 38px;
+
+  margin-top: 2px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: transparent;
+  color: var(--text-secondary);
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.explore-questions-button:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+/* =========================================================
+   THINK MODE INFORMATION
+   ========================================================= */
+
+.think-mode-hint {
+  width: 100%;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  margin-top: 12px;
+  padding: 12px 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: transparent;
+
+  text-align: left;
+}
+
+.think-mode-hint-icon {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.think-mode-hint strong {
+  display: block;
+  margin-bottom: 3px;
+
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.think-mode-hint p {
+  margin: 0;
+
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   INITIAL GUEST WELCOME LAYOUT
+   ========================================================= */
+
+.guest-welcome {
+  max-width: 800px;
+  padding: 54px 20px 20px;
+}
+
+.guest-welcome h2 {
+  margin-bottom: 8px;
+  font-size: 28px;
+}
+
+.guest-welcome p {
+  font-size: 13px;
+}
+
+/*
+ * Keep the initial screen compact.
+ * Once the user starts chatting, .guest-messages
+ * naturally becomes scrollable.
+ */
+
+.guest-messages {
+  padding-top: 74px;
+  padding-bottom: 120px;
+}
+
+/* =========================================================
+   MOBILE QUICK QUESTIONS
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .quick-questions {
+    margin-top: 22px;
   }
 
-  .guest-header-actions {
-    margin-left: auto;
+  .quick-question-grid {
+    grid-template-columns: 1fr;
   }
 
-  .guest-login-header-button,
-  .guest-signup-header-button {
-    padding: 0 9px;
+  .quick-questions-header {
+    align-items: flex-start;
   }
 
-  .guest-welcome-logo {
-    width: 64px;
-    height: 64px;
+  .quick-question-count {
+    margin-top: 2px;
+  }
+
+  .quick-question-button {
+    min-height: 42px;
+    font-size: 12px;
+  }
+
+  .think-mode-hint {
+    padding: 11px 12px;
+  }
+
+  .guest-welcome {
+    padding: 35px 12px 20px;
   }
 
   .guest-welcome h2 {
-    font-size: 22px;
+    font-size: 23px;
   }
+}
+
+@media (max-width: 480px) {
+  .quick-questions-header {
+    display: block;
+  }
+
+  .quick-question-count {
+    display: inline-block;
+    margin-top: 8px;
+  }
+
+  .quick-question-category {
+    margin-bottom: 16px;
+  }
+
+  .quick-question-button {
+    font-size: 11px;
+  }
+}
+
+/* =========================================================
+   MARKDOWN TABLES
+   ========================================================= */
+
+.guest-message-content table {
+  width: 100%;
+  margin: 16px 0;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+.guest-message-content thead {
+  background: var(--surface);
+}
+
+.guest-message-content th,
+.guest-message-content td {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.guest-message-content th {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.guest-message-content td {
+  color: var(--text);
+}
+
+.guest-message-content tbody tr:nth-child(even) {
+  background: var(--surface);
+}
+
+.guest-message-content tbody tr:hover {
+  background: var(--input-background);
+}
+
+.guest-message-content table code {
+  font-size: 12px;
 }

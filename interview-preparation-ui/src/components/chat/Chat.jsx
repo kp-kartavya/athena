@@ -5,8 +5,9 @@ import Sidebar from "../sidebar/Sidebar";
 import { getChat, createChat, sendMessage } from "../../api/recentChats";
 import "./chat.css";
 import ThinkToggle from "../think/ThinkToggle";
-import Header from "../header/Header";
 import ComposerExpandToggle from "../expand/ComposerExpandToggle";
+import { QUICK_QUESTIONS } from "../../utils/constants";
+import remarkGfm from "remark-gfm";
 
 const Chat = ({ theme, onToggleTheme, currentUser }) => {
   const [question, setQuestion] = useState("");
@@ -18,6 +19,7 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
   const [showExpandButton, setShowExpandButton] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [showAllQuestions, setShowAllQuestions] = useState(false);
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -26,6 +28,12 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
     () => activeChat?.messages ?? [],
     [activeChat?.messages],
   );
+
+  const totalQuickQuestions = Object.values(QUICK_QUESTIONS).flat().length;
+
+  const visibleCategories = showAllQuestions
+    ? Object.entries(QUICK_QUESTIONS)
+    : Object.entries(QUICK_QUESTIONS).slice(0, 3);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
@@ -76,6 +84,7 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
     setActiveChatId(null);
     setActiveChat(null);
     setQuestion("");
+    setShowAllQuestions(false);
     setIsMobileSidebarOpen(false);
   };
 
@@ -90,10 +99,23 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
       setActiveChatId(chat.id);
       setActiveChat(chat);
       setQuestion("");
+      setShowAllQuestions(false);
       setIsMobileSidebarOpen(false);
     } catch (error) {
       console.error("Failed to load chat:", error);
     }
+  };
+
+  const handleQuickQuestion = (selectedQuestion) => {
+    if (isLoading) {
+      return;
+    }
+
+    setQuestion(selectedQuestion);
+
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 0);
   };
 
   const handleSend = async () => {
@@ -188,13 +210,99 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
           <Menu size={20} />
         </button>
 
-        <Header />
-
         <div className="messages">
           {messages.length === 0 ? (
             <div className="welcome">
-              <h2>How can I help you?</h2>
-              <p>Ask me anything about your interview preparation.</p>
+              <div className="welcome-header">
+                <h2>How can I help you?</h2>
+
+                <p>
+                  {thinkMode
+                    ? "Think Mode is enabled. Ask broader technical questions or get a deeper explanation."
+                    : "Choose a question from your interview preparation set or ask it directly below."}
+                </p>
+              </div>
+
+              {!thinkMode && (
+                <div className="quick-questions">
+                  <div className="quick-questions-header">
+                    <div>
+                      <h3>Quick Questions</h3>
+
+                      <p>
+                        Practice questions from your interview preparation set
+                      </p>
+                    </div>
+
+                    <span className="question-count">
+                      {totalQuickQuestions} questions
+                    </span>
+                  </div>
+
+                  <div className="question-categories">
+                    {visibleCategories.map(([category, questions]) => (
+                      <div className="question-category" key={category}>
+                        <h4>{category}</h4>
+
+                        <div className="question-list">
+                          {(showAllQuestions
+                            ? questions
+                            : questions.slice(0, 4)
+                          ).map((item) => (
+                            <button
+                              type="button"
+                              className="quick-question"
+                              key={item}
+                              onClick={() => handleQuickQuestion(item)}
+                              disabled={isLoading}
+                            >
+                              <span>{item}</span>
+
+                              <span className="question-arrow">→</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="explore-questions-button"
+                    onClick={() => setShowAllQuestions((previous) => !previous)}
+                  >
+                    {showAllQuestions
+                      ? "Show fewer questions ↑"
+                      : "Explore more questions ↓"}
+                  </button>
+
+                  <div className="think-mode-info">
+                    <span className="think-mode-icon">✦</span>
+
+                    <div>
+                      <strong>Need a deeper answer?</strong>
+
+                      <p>
+                        Turn on <b>Think Mode</b> to ask other technical
+                        questions and explore topics in more detail.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {thinkMode && (
+                <div className="think-mode-welcome">
+                  <div className="think-mode-icon-large">✦</div>
+
+                  <h3>Think Mode is ON</h3>
+
+                  <p>
+                    Ask broader technical questions, explore concepts outside
+                    the quick-question set, or get a more detailed explanation.
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
             messages.map((message) => (
@@ -204,7 +312,9 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
               >
                 <div className="message-content">
                   {message.role === "assistant" ? (
-                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.content}
+                    </ReactMarkdown>
                   ) : (
                     message.content
                   )}
@@ -239,7 +349,7 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
             {showExpandButton && (
               <ComposerExpandToggle
                 isExpanded={isComposerExpanded}
-                onToggle={() => setIsComposerExpanded(!isComposerExpanded)}
+                onToggle={() => setIsComposerExpanded((previous) => !previous)}
               />
             )}
 
@@ -264,14 +374,17 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
 
             <ThinkToggle
               enabled={thinkMode}
-              onToggle={() => setThinkMode((prev) => !prev)}
+              onToggle={() => setThinkMode((previous) => !previous)}
               disabled={isLoading}
             />
 
             <button
+              type="button"
               className="send-button"
               onClick={handleSend}
               disabled={isLoading || !question.trim()}
+              aria-label="Send question"
+              title="Send question"
             >
               ↑
             </button>

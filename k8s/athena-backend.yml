@@ -28,7 +28,7 @@ spec:
 
       initContainers:
         - name: fix-data-permissions
-          image: athena-backend:6.6
+          image: athena-backend:latest
           imagePullPolicy: Never
 
           securityContext:
@@ -50,7 +50,7 @@ spec:
 
       containers:
         - name: athena-backend
-          image: athena-backend:6.6
+          image: athena-backend:latest
           imagePullPolicy: Never
 
           securityContext:

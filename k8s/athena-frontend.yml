@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
         - name: athena-frontend
-          image: athena-frontend:5.5
+          image: athena-frontend:latest1
           imagePullPolicy: Never
 
           securityContext:

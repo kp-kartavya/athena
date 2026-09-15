@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Menu } from "lucide-react";
+
 import Sidebar from "../sidebar/Sidebar";
+import Feedback from "../feedback/Feedback";
 import { getChat, createChat, sendMessage } from "../../api/recentChats";
 import "./chat.css";
 import ThinkToggle from "../think/ThinkToggle";
@@ -20,6 +22,7 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
   const [showExpandButton, setShowExpandButton] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showAllQuestions, setShowAllQuestions] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -64,7 +67,7 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth > 768) {
+      if (window.innerWidth > 640) {
         setIsMobileSidebarOpen(false);
       }
     };
@@ -175,6 +178,15 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
     }
   };
 
+  const handleFeedback = () => {
+    if (isLoading) {
+      return;
+    }
+
+    setIsMobileSidebarOpen(false);
+    setShowFeedback(true);
+  };
+
   return (
     <div className="app">
       {isMobileSidebarOpen && (
@@ -190,6 +202,7 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
         activeChatId={activeChatId}
         onNewChat={handleNewChat}
         onSelectChat={handleSelectChat}
+        onFeedback={handleFeedback}
         disabled={isLoading}
         refreshKey={refreshKey}
         theme={theme}
@@ -342,9 +355,9 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
 
         <div className="input-area">
           <div
-            className={`input-wrapper ${
-              isLoading ? "input-disabled" : ""
-            } ${isComposerExpanded ? "composer-expanded" : ""}`}
+            className={`input-wrapper ${isLoading ? "input-disabled" : ""} ${
+              isComposerExpanded ? "composer-expanded" : ""
+            }`}
           >
             {showExpandButton && (
               <ComposerExpandToggle
@@ -397,6 +410,14 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
           </div>
         </div>
       </main>
+
+      {showFeedback && (
+        <Feedback
+          theme={theme}
+          currentUser={currentUser}
+          onClose={() => setShowFeedback(false)}
+        />
+      )}
     </div>
   );
 };

@@ -21,6 +21,8 @@ public class EmailServiceImpl implements EmailService {
 
 	@Value("${athena.mail.from}")
 	private String from;
+	@Value("${athena.feedback.to:${MAIL_USERNAME}}")
+	private String feedbackTo;
 
 	@Override
 	public void sendVerificationCode(String email, String name, String code) {
@@ -70,6 +72,53 @@ public class EmailServiceImpl implements EmailService {
 
 				Athena
 				""".formatted(name, code));
+
+		mailSender.send(message);
+	}
+
+	@Override
+	public void sendFeedbackEmail(int rating, String feedback, String improvement, String userName, String userEmail,
+			boolean authenticated) {
+
+		SimpleMailMessage message = new SimpleMailMessage();
+
+		message.setFrom(from);
+		message.setTo(feedbackTo);
+		message.setSubject("New Athena Feedback — " + rating + "/5");
+
+		String submittedBy = authenticated ? "Authenticated user" : "Guest user";
+
+		String name = userName == null || userName.isBlank() ? "Not provided" : userName;
+
+		String email = userEmail == null || userEmail.isBlank() ? "Not provided" : userEmail;
+
+		String primaryFeedback = feedback == null || feedback.isBlank() ? "Not provided" : feedback;
+
+		String improvementFeedback = improvement == null || improvement.isBlank() ? "Not provided" : improvement;
+
+		message.setText("""
+				New feedback received for Athena
+
+				Rating: %d/5
+
+				Account type: %s
+
+				User name: %s
+
+				User email: %s
+
+				What did you think of Athena?
+				--------------------------------
+				%s
+
+				What could be improved?
+				--------------------------------
+				%s
+
+				Regards,
+
+				Athena Feedback System
+				""".formatted(rating, submittedBy, name, email, primaryFeedback, improvementFeedback));
 
 		mailSender.send(message);
 	}

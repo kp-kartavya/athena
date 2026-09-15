@@ -2,20 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Menu, Send, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-
+import remarkGfm from "remark-gfm";
 import "./guestChat.css";
 import "./authModal.css";
-
-import ThemeToggle from "../theme/ThemeToggle";
 import ThinkToggle from "../think/ThinkToggle";
 import ComposerExpandToggle from "../expand/ComposerExpandToggle";
 import Sidebar from "../sidebar/Sidebar";
+import Feedback from "../feedback/Feedback";
 import Login from "../login/Login";
 import Signup from "../signup/Signup";
-
-import { getCsrfHeaders } from "../../api/csrf";
+import {
+  getGuestChats,
+  getGuestChat,
+  createGuestChat,
+  sendGuestMessage,
+} from "../../api/recentChats";
+import { getGuestSessionId } from "../../api/guestSession";
 import { QUICK_QUESTIONS } from "../../utils/constants";
-import remarkGfm from "remark-gfm";
 
 function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
   const [question, setQuestion] = useState("");
@@ -27,6 +30,13 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
   const [error, setError] = useState("");
   const [showAllQuestions, setShowAllQuestions] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+
+  const [guestSessionId, setGuestSessionId] = useState(null);
+  const [guestChats, setGuestChats] = useState([]);
+  const [activeChatId, setActiveChatId] = useState(null);
+  const [activeChat, setActiveChat] = useState(null);
+  const [isChatsLoading, setIsChatsLoading] = useState(true);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -38,11 +48,85 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
   const isLoginModal = authModal === "login";
   const isSignupModal = authModal === "signup";
 
-  /*
-   * =========================================================
-   * Auto scroll
-   * =========================================================
-   */
+  // =========================================================
+  // INITIALIZE GUEST SESSION + LOAD GUEST CHATS
+  // =========================================================
+
+  useEffect(() => {
+    let mounted = true;
+
+    const initializeGuestSession = async () => {
+      try {
+        const sessionId = getGuestSessionId();
+
+        if (!mounted) {
+          return;
+        }
+
+        setGuestSessionId(sessionId);
+
+        const chats = await getGuestChats(sessionId);
+
+        if (!mounted) {
+          return;
+        }
+
+        setGuestChats(Array.isArray(chats) ? chats : []);
+      } catch (requestError) {
+        console.error("Failed to load guest chats:", requestError);
+
+        if (mounted) {
+          setError("Unable to load your guest conversations.");
+        }
+      } finally {
+        if (mounted) {
+          setIsChatsLoading(false);
+        }
+      }
+    };
+
+    initializeGuestSession();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleGuestChatDeleted = (event) => {
+      const deletedChatId = event.detail?.chatId;
+
+      if (!deletedChatId) {
+        return;
+      }
+
+      setGuestChats((previousChats) =>
+        previousChats.filter((chat) => chat.id !== deletedChatId),
+      );
+
+      if (activeChatId === deletedChatId) {
+        setActiveChatId(null);
+        setActiveChat(null);
+        setMessages([]);
+      }
+    };
+
+    window.addEventListener(
+      "athena-guest-chat-deleted",
+      handleGuestChatDeleted,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "athena-guest-chat-deleted",
+        handleGuestChatDeleted,
+      );
+    };
+  }, [activeChatId]);
+
+  // =========================================================
+  // AUTO-SCROLL
+  // =========================================================
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -52,11 +136,9 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     }
   }, [messages, isLoading]);
 
-  /*
-   * =========================================================
-   * Textarea auto resize
-   * =========================================================
-   */
+  // =========================================================
+  // TEXTAREA RESIZE
+  // =========================================================
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -79,15 +161,13 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     setShowExpandButton(textarea.scrollHeight > maxHeight);
   }, [question]);
 
-  /*
-   * =========================================================
-   * Resize
-   * =========================================================
-   */
+  // =========================================================
+  // RESPONSIVE SIDEBAR
+  // =========================================================
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth > 768) {
+      if (window.innerWidth > 640) {
         setIsSidebarOpen(false);
       }
     };
@@ -99,11 +179,9 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     };
   }, []);
 
-  /*
-   * =========================================================
-   * Authentication modal
-   * =========================================================
-   */
+  // =========================================================
+  // AUTH MODALS
+  // =========================================================
 
   const openLoginModal = () => {
     setSearchParams({ auth: "login" }, { replace: false });
@@ -125,17 +203,69 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     setSearchParams({ auth: "signup" }, { replace: true });
   };
 
-  /*
-   * =========================================================
-   * New guest chat
-   * =========================================================
-   */
+  // =========================================================
+  // REFRESH GUEST CHAT LIST
+  // =========================================================
+
+  const refreshGuestChats = async (sessionId = guestSessionId) => {
+    if (!sessionId) {
+      return [];
+    }
+
+    const chats = await getGuestChats(sessionId);
+
+    const normalizedChats = Array.isArray(chats) ? chats : [];
+
+    setGuestChats(normalizedChats);
+
+    return normalizedChats;
+  };
+
+  // =========================================================
+  // SELECT GUEST CHAT
+  // =========================================================
+
+  const handleSelectChat = async (chatId) => {
+    if (!chatId || isLoading || !guestSessionId) {
+      return;
+    }
+
+    try {
+      setError("");
+      setIsSidebarOpen(false);
+      setIsLoading(true);
+
+      const chat = await getGuestChat(chatId, guestSessionId);
+
+      setActiveChatId(chat.id);
+      setActiveChat(chat);
+      setMessages(Array.isArray(chat.messages) ? chat.messages : []);
+      setQuestion("");
+      setThinkMode(false);
+      setShowAllQuestions(false);
+      setIsComposerExpanded(false);
+
+      await refreshGuestChats(guestSessionId);
+    } catch (requestError) {
+      console.error("Failed to load guest chat:", requestError);
+
+      setError("Unable to load this conversation.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // =========================================================
+  // NEW CHAT
+  // =========================================================
 
   const handleNewChat = () => {
     if (isLoading) {
       return;
     }
 
+    setActiveChatId(null);
+    setActiveChat(null);
     setMessages([]);
     setQuestion("");
     setError("");
@@ -145,11 +275,9 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     setIsSidebarOpen(false);
   };
 
-  /*
-   * =========================================================
-   * Quick question
-   * =========================================================
-   */
+  // =========================================================
+  // QUICK QUESTIONS
+  // =========================================================
 
   const handleQuickQuestion = (selectedQuestion) => {
     if (isLoading) {
@@ -163,16 +291,14 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     });
   };
 
-  /*
-   * =========================================================
-   * Send guest question
-   * =========================================================
-   */
+  // =========================================================
+  // SEND MESSAGE
+  // =========================================================
 
   const handleSend = async () => {
     const trimmedQuestion = question.trim();
 
-    if (!trimmedQuestion || isLoading) {
+    if (!trimmedQuestion || isLoading || !guestSessionId) {
       return;
     }
 
@@ -180,79 +306,60 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     setError("");
     setIsLoading(true);
 
-    const userMessage = {
-      id: `user-${Date.now()}`,
-      role: "user",
-      content: trimmedQuestion,
-      timestamp: new Date().toISOString(),
-    };
-
-    setMessages((previousMessages) => [...previousMessages, userMessage]);
-
     try {
-      const response = await fetch("/api/guest/ask", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...getCsrfHeaders(),
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          question: trimmedQuestion,
-          think: thinkMode,
-        }),
-      });
+      let chatId = activeChatId;
 
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || data.error || "Unable to get a response from Athena.",
+      // Create a persistent guest chat on the first message.
+      if (!chatId) {
+        const newChat = await createGuestChat(
+          trimmedQuestion.slice(0, 80),
+          guestSessionId,
         );
+
+        chatId = newChat.id;
+
+        setActiveChatId(chatId);
+        setActiveChat(newChat);
       }
 
-      const assistantMessage = {
-        id: `assistant-${Date.now()}`,
-        role: "assistant",
-        content: data.answer || data.message || "",
-        timestamp: new Date().toISOString(),
-      };
+      const updatedChat = await sendGuestMessage(
+        chatId,
+        guestSessionId,
+        trimmedQuestion,
+        thinkMode,
+      );
 
-      setMessages((previousMessages) => [
-        ...previousMessages,
-        assistantMessage,
-      ]);
+      setActiveChat(updatedChat);
+      setMessages(
+        Array.isArray(updatedChat.messages) ? updatedChat.messages : [],
+      );
+
+      await refreshGuestChats(guestSessionId);
     } catch (requestError) {
       console.error("Guest chat error:", requestError);
 
       setError(requestError.message || "Unable to connect to Athena.");
-
-      const errorMessage = {
-        id: `error-${Date.now()}`,
-        role: "assistant",
-        content: "Sorry, I couldn't get a response. Please try again.",
-        timestamp: new Date().toISOString(),
-      };
-
-      setMessages((previousMessages) => [...previousMessages, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  /*
-   * =========================================================
-   * Questions
-   * =========================================================
-   *
-   * Initial:
-   *   - 3 categories
-   *   - 4 questions/category
-   *
-   * Explore:
-   *   - all categories
-   *   - all questions
-   */
+  // =========================================================
+  // FEEDBACK
+  // =========================================================
+
+  const handleFeedback = () => {
+    if (isLoading) {
+      return;
+    }
+
+    setIsSidebarOpen(false);
+    setShowFeedback(true);
+  };
+
+  // =========================================================
+  // QUICK QUESTION DATA
+  // =========================================================
 
   const questionCategories = Object.entries(QUICK_QUESTIONS);
 
@@ -265,11 +372,13 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     0,
   );
 
+  // =========================================================
+  // RENDER
+  // =========================================================
+
   return (
     <div className="guest-app">
       <div className="guest-body">
-        {/* Mobile overlay */}
-
         {isSidebarOpen && (
           <button
             type="button"
@@ -279,12 +388,11 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
           />
         )}
 
-        {/* Sidebar */}
-
         <Sidebar
-          activeChatId={null}
-          onSelectChat={undefined}
+          activeChatId={activeChatId}
+          onSelectChat={handleSelectChat}
           onNewChat={handleNewChat}
+          onFeedback={handleFeedback}
           mobileOpen={isSidebarOpen}
           onMobileClose={() => setIsSidebarOpen(false)}
           theme={theme}
@@ -293,10 +401,12 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
           isGuest={true}
           onLogin={openLoginModal}
           onSignup={openSignupModal}
+          guestChats={guestChats}
+          isGuestChatsLoading={isChatsLoading}
+          guestSessionId={guestSessionId}
         />
 
         <main className="guest-main">
-          {/* Top-right actions — no separate header bar */}
           <div className="guest-main-actions">
             <button
               type="button"
@@ -314,26 +424,20 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
               Sign up for free
             </button>
 
-            <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+            <button
+              type="button"
+              className="guest-mobile-menu-button"
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Open sidebar"
+              title="Open sidebar"
+            >
+              <Menu size={20} />
+            </button>
           </div>
-
-          {/* Mobile menu */}
-
-          <button
-            type="button"
-            className="guest-mobile-menu-button"
-            onClick={() => setIsSidebarOpen(true)}
-            aria-label="Open sidebar"
-            title="Open sidebar"
-          >
-            <Menu size={20} />
-          </button>
 
           <div className="guest-messages">
             {messages.length === 0 ? (
               <div className="guest-welcome">
-                {/* Welcome heading */}
-
                 <div className="guest-welcome-heading">
                   <h2>How can I help you?</h2>
 
@@ -343,12 +447,10 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
                   </p>
 
                   <span className="guest-welcome-note">
-                    You're using Athena as a guest. Your conversation won't be
-                    saved.
+                    You're using Athena as a guest. Your conversations are saved
+                    on this browser.
                   </span>
                 </div>
-
-                {/* Quick Questions */}
 
                 {!thinkMode && (
                   <section className="quick-questions">
@@ -412,8 +514,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
                       </button>
                     )}
 
-                    {/* Think Mode explanation */}
-
                     <div className="think-mode-hint">
                       <span className="think-mode-hint-icon">✦</span>
 
@@ -428,8 +528,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
                     </div>
                   </section>
                 )}
-
-                {/* Think Mode welcome */}
 
                 {thinkMode && (
                   <div className="think-mode-welcome">
@@ -462,8 +560,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
                 </div>
               ))
             )}
-
-            {/* Thinking */}
 
             {isLoading && (
               <div className="guest-message assistant-message">
@@ -513,7 +609,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && !event.shiftKey && !isLoading) {
                     event.preventDefault();
-
                     handleSend();
                   }
                 }}
@@ -529,7 +624,7 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
                 type="button"
                 className="guest-send-button"
                 onClick={handleSend}
-                disabled={isLoading || !question.trim()}
+                disabled={isLoading || !question.trim() || !guestSessionId}
                 aria-label="Send question"
                 title="Send question"
               >
@@ -538,8 +633,8 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
             </div>
 
             <div className="guest-input-hint">
-              Enter to send · Shift + Enter for new line · Guest conversations
-              are not saved
+              Enter to send · Shift + Enter for new line · Guest chats are saved
+              on this browser
             </div>
           </div>
         </main>
@@ -581,6 +676,14 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
             )}
           </div>
         </div>
+      )}
+
+      {showFeedback && (
+        <Feedback
+          theme={theme}
+          currentUser={null}
+          onClose={() => setShowFeedback(false)}
+        />
       )}
     </div>
   );

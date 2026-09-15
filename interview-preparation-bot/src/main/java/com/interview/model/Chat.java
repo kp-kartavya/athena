@@ -7,6 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -32,9 +33,12 @@ public class Chat {
 
 	@OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ChatMessage> messages = new ArrayList<>();
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false)
+	@JoinColumn(name = "user_id", nullable = true)
 	@JsonIgnore
 	private User user;
+
+	@Column(name = "guest_session_id")
+	private String guestSessionId;
 }

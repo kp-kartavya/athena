@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   Plus,
   MessageSquare,
+  MessageSquarePlus,
   Trash2,
   LogOut,
   PanelLeftClose,
@@ -10,7 +11,7 @@ import {
   Sun,
   Moon,
 } from "lucide-react";
-import { getChats, deleteChat } from "../../api/recentChats";
+import { getChats, deleteChat, deleteGuestChat } from "../../api/recentChats";
 import logo from "../../assets/athena-logo.png";
 import "./sidebar.css";
 import LoadingWidget from "../loading/LoadingWidget";
@@ -20,6 +21,7 @@ const Sidebar = ({
   activeChatId,
   onSelectChat,
   onNewChat,
+  onFeedback,
   mobileOpen,
   onMobileClose,
   theme,
@@ -32,6 +34,9 @@ const Sidebar = ({
   isGuest = false,
   onLogin,
   onSignup,
+  guestChats = [],
+  isGuestChatsLoading = false,
+  guestSessionId,
 }) => {
   const [chats, setChats] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,8 +45,13 @@ const Sidebar = ({
   const [collapsed, setCollapsed] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
+  // =========================================================
+  // LOAD AUTHENTICATED USER CHATS
+  // =========================================================
+
   useEffect(() => {
     if (isGuest) {
+      setChats([]);
       return;
     }
 
@@ -69,6 +79,10 @@ const Sidebar = ({
     };
   }, [isGuest, refreshKey]);
 
+  // =========================================================
+  // SIDEBAR CONTROLS
+  // =========================================================
+
   const handleCollapse = () => {
     setCollapsed(true);
     setProfileMenuOpen(false);
@@ -84,10 +98,20 @@ const Sidebar = ({
       return;
     }
 
-    if (onNewChat) {
-      onNewChat();
+    onNewChat?.();
+    onMobileClose?.();
+
+    setProfileMenuOpen(false);
+    setSearchQuery("");
+    setDeleteChatId(null);
+  };
+
+  const handleFeedback = () => {
+    if (disabled) {
+      return;
     }
 
+    onFeedback?.();
     onMobileClose?.();
 
     setProfileMenuOpen(false);
@@ -99,29 +123,51 @@ const Sidebar = ({
       return;
     }
 
-    if (onSelectChat) {
-      onSelectChat(chatId);
-    }
+    onSelectChat?.(chatId);
 
     onMobileClose?.();
 
     setProfileMenuOpen(false);
   };
 
+  // =========================================================
+  // DELETE AUTHENTICATED / GUEST CHAT
+  // =========================================================
+
   const handleDeleteChat = async (chatId) => {
-    if (disabled || isGuest) {
+    if (disabled) {
       return;
     }
 
     try {
-      await deleteChat(chatId);
+      if (isGuest) {
+        if (!guestSessionId) {
+          throw new Error("Guest session ID is missing.");
+        }
 
-      setChats((previousChats) =>
-        previousChats.filter((chat) => chat.id !== chatId),
-      );
+        await deleteGuestChat(chatId, guestSessionId);
 
-      if (activeChatId === chatId) {
-        onNewChat?.();
+        // GuestChat owns the guest chat list, so reload the page
+        // state through its existing flow by opening a new chat.
+        if (activeChatId === chatId) {
+          onNewChat?.();
+        }
+
+        window.dispatchEvent(
+          new CustomEvent("athena-guest-chat-deleted", {
+            detail: { chatId },
+          }),
+        );
+      } else {
+        await deleteChat(chatId);
+
+        setChats((previousChats) =>
+          previousChats.filter((chat) => chat.id !== chatId),
+        );
+
+        if (activeChatId === chatId) {
+          onNewChat?.();
+        }
       }
     } catch (error) {
       console.error("Failed to delete chat:", error);
@@ -129,6 +175,10 @@ const Sidebar = ({
       setDeleteChatId(null);
     }
   };
+
+  // =========================================================
+  // LOGOUT
+  // =========================================================
 
   const handleLogout = async () => {
     if (loggingOut) {
@@ -153,25 +203,31 @@ const Sidebar = ({
     }
   };
 
+  // =========================================================
+  // LOGIN / SIGNUP
+  // =========================================================
+
   const handleLogin = () => {
     onMobileClose?.();
     setProfileMenuOpen(false);
 
-    if (onLogin) {
-      onLogin();
-    }
+    onLogin?.();
   };
 
   const handleSignup = () => {
     onMobileClose?.();
     setProfileMenuOpen(false);
 
-    if (onSignup) {
-      onSignup();
-    }
+    onSignup?.();
   };
 
-  const filteredChats = chats.filter((chat) => {
+  // =========================================================
+  // FILTER CHATS
+  // =========================================================
+
+  const sourceChats = isGuest ? guestChats : chats;
+
+  const filteredChats = sourceChats.filter((chat) => {
     const title = chat.title ?? "";
     const query = searchQuery.trim().toLowerCase();
 
@@ -181,6 +237,10 @@ const Sidebar = ({
 
     return title.toLowerCase().includes(query);
   });
+
+  // =========================================================
+  // PROFILE INITIAL
+  // =========================================================
 
   const getInitial = () => {
     if (currentUser?.initial) {
@@ -193,6 +253,10 @@ const Sidebar = ({
 
     return "?";
   };
+
+  // =========================================================
+  // RENDER
+  // =========================================================
 
   return (
     <>
@@ -244,8 +308,6 @@ const Sidebar = ({
             </button>
           )}
 
-          {/* Mobile close button */}
-
           <button
             type="button"
             className="sidebar-mobile-close"
@@ -258,8 +320,6 @@ const Sidebar = ({
         </div>
 
         <div className="sidebar-content">
-          {/* New Chat */}
-
           <button
             type="button"
             className="new-chat-button"
@@ -267,11 +327,18 @@ const Sidebar = ({
             disabled={disabled}
           >
             <Plus size={20} />
-
             <span className="new-chat-text">New chat</span>
           </button>
 
-          {/* Search */}
+          <button
+            type="button"
+            className="new-chat-button feedback-button"
+            onClick={handleFeedback}
+            disabled={disabled}
+          >
+            <MessageSquarePlus size={19} />
+            <span className="new-chat-text">Feedback</span>
+          </button>
 
           <div className="sidebar-search">
             <Search size={17} />
@@ -281,7 +348,7 @@ const Sidebar = ({
               placeholder="Search chats..."
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              disabled={disabled || isGuest}
+              disabled={disabled}
             />
 
             {searchQuery && (
@@ -300,17 +367,17 @@ const Sidebar = ({
             <div className="recent-chats-title">Recent</div>
 
             <div className="recent-chats-list">
-              {isGuest ? (
+              {isGuest && isGuestChatsLoading ? (
                 <div className="no-chats">
                   <MessageSquare size={17} />
 
-                  <span>Guest chats are not saved</span>
+                  <span>Loading chats...</span>
                 </div>
               ) : filteredChats.length === 0 ? (
                 <div className="no-chats">
                   <MessageSquare size={17} />
 
-                  <span>No chats yet</span>
+                  <span>{isGuest ? "No guest chats yet" : "No chats yet"}</span>
                 </div>
               ) : (
                 filteredChats.map((chat) => (
@@ -358,8 +425,8 @@ const Sidebar = ({
               </div>
 
               <p>
-                Log in to save your conversations and access them from your
-                recent chats.
+                Log in to sync your guest conversations to your account and
+                access them from your recent chats.
               </p>
 
               <button type="button" onClick={handleLogin}>
@@ -374,8 +441,6 @@ const Sidebar = ({
                 Sign up for free
               </button>
             </div>
-
-            {/* Guest Profile */}
 
             <div className="sidebar-user guest-sidebar-user">
               <div className="sidebar-user-profile-button">
@@ -449,8 +514,6 @@ const Sidebar = ({
               </button>
             </div>
 
-            {/* Collapsed Profile Menu */}
-
             {profileMenuOpen && collapsed && (
               <div className="collapsed-profile-menu">
                 <div className="profile-menu-header">
@@ -461,7 +524,7 @@ const Sidebar = ({
                       {currentUser?.name ?? "User"}
                     </span>
 
-                    <span className="profile-menu-provider">Go</span>
+                    <span className="profile-menu-provider">Athena</span>
                   </div>
                 </div>
 
@@ -486,11 +549,20 @@ const Sidebar = ({
                 <button
                   type="button"
                   className="profile-menu-item"
+                  onClick={handleFeedback}
+                  disabled={loggingOut}
+                >
+                  <MessageSquarePlus size={18} />
+                  <span>Feedback</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="profile-menu-item"
                   onClick={handleLogout}
                   disabled={loggingOut}
                 >
                   <LogOut size={18} />
-
                   <span>Log out</span>
                 </button>
               </div>
@@ -499,7 +571,7 @@ const Sidebar = ({
         )}
       </aside>
 
-      {deleteChatId !== null && !isGuest && (
+      {deleteChatId !== null && (
         <div className="delete-chat-overlay">
           <div className="delete-chat-dialog">
             <h3>Delete chat?</h3>

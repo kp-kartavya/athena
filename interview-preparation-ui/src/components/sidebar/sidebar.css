@@ -1,180 +1,114 @@
-/* =========================================================
-   Sidebar
-   ========================================================= */
-
 .sidebar {
   position: relative;
-
   width: 260px;
   height: 100dvh;
   min-height: 100dvh;
-
   display: flex;
   flex-direction: column;
-
   flex-shrink: 0;
-
   box-sizing: border-box;
-
   padding: 10px;
-
   overflow: visible;
-
   background: var(--sidebar-bg);
-
   border-right: 1px solid var(--border);
-
   transition:
     width 0.2s ease,
     padding 0.2s ease,
     transform 0.25s ease;
-
   z-index: 100;
 }
 
 .sidebar.collapsed {
   width: 68px;
-
   padding: 10px 8px;
 }
 
-/* =========================================================
-   Header
-   ========================================================= */
-
 .sidebar-header {
   width: 100%;
-
   min-height: 58px;
-
   display: flex;
   align-items: center;
-
   box-sizing: border-box;
-
   padding: 0 4px;
-
   margin-bottom: 6px;
 }
 
-/* =========================================================
-   Brand
-   ========================================================= */
-
 .sidebar-brand {
   min-width: 0;
-
   flex: 1;
-
   display: flex;
   align-items: center;
-
   gap: 10px;
 }
 
 .sidebar-logo {
   width: 34px;
   height: 34px;
-
   object-fit: contain;
-
   flex-shrink: 0;
 }
 
 .sidebar-brand-text {
   min-width: 0;
-
   display: flex;
   flex-direction: column;
-
   justify-content: center;
 }
 
 .sidebar-brand-name {
   color: var(--text);
-
   font-family: Georgia, "Times New Roman", serif;
-
   font-size: 18px;
   font-weight: 700;
-
   line-height: 1;
-
   letter-spacing: 0.7px;
 }
 
 .sidebar-brand-subtitle {
   margin-top: 4px;
-
   color: var(--text-secondary);
-
   font-size: 8px;
   font-weight: 500;
-
   line-height: 1;
-
   white-space: nowrap;
 }
-
-/* =========================================================
-   Collapse Button
-   ========================================================= */
 
 .sidebar-collapse-button {
   width: 34px;
   height: 34px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
   padding: 0;
-
   border: none;
   border-radius: 8px;
-
   background: transparent;
-
   color: var(--text-secondary);
-
   cursor: pointer;
 }
 
 .sidebar-collapse-button:hover:not(:disabled) {
   background: var(--surface-hover);
-
   color: var(--text);
 }
 
 .sidebar-collapse-button:disabled {
   opacity: 0.5;
-
   cursor: not-allowed;
 }
-
-/* =========================================================
-   Collapsed Logo
-   ========================================================= */
 
 .sidebar-logo-button {
   width: 42px;
   height: 42px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   margin: 0 auto;
-
   padding: 0;
-
   border: none;
   border-radius: 8px;
-
   background: transparent;
-
   cursor: pointer;
 }
 
@@ -184,7 +118,6 @@
 
 .sidebar-logo-button:disabled {
   opacity: 0.5;
-
   cursor: not-allowed;
 }
 
@@ -193,84 +126,48 @@
   height: 36px;
 }
 
-/* =========================================================
-   Mobile Close
-   ========================================================= */
-
 .sidebar-mobile-close {
   display: none;
-
   width: 34px;
   height: 34px;
-
   align-items: center;
   justify-content: center;
-
   padding: 0;
-
   border: none;
   border-radius: 8px;
-
   background: transparent;
-
   color: var(--text-secondary);
-
   cursor: pointer;
 }
 
 .sidebar-mobile-close:hover {
   background: var(--surface-hover);
-
   color: var(--text);
 }
-
-/* =========================================================
-   Sidebar Content
-   ========================================================= */
 
 .sidebar-content {
   flex: 1;
-
   min-height: 0;
-
   display: flex;
   flex-direction: column;
-
   overflow: hidden;
 }
 
-/* =========================================================
-   New Chat
-   ========================================================= */
-
 .new-chat-button {
   width: 100%;
-
   min-height: 42px;
-
   display: flex;
   align-items: center;
-
   justify-content: flex-start;
-
   gap: 10px;
-
   box-sizing: border-box;
-
   padding: 9px 10px;
-
   margin-bottom: 8px;
-
   border: none;
-
   border-radius: 8px;
-
   background: var(--surface);
-
   color: var(--text);
-
   font-size: 14px;
-
   cursor: pointer;
 }
 
@@ -280,7 +177,6 @@
 
 .new-chat-button:disabled {
   opacity: 0.5;
-
   cursor: not-allowed;
 }
 
@@ -290,12 +186,9 @@
 
 .sidebar.collapsed .new-chat-button {
   width: 48px;
-
   justify-content: center;
-
   margin-left: auto;
   margin-right: auto;
-
   padding: 0;
 }
 
@@ -303,29 +196,17 @@
   display: none;
 }
 
-/* =========================================================
-   Search
-   ========================================================= */
-
 .sidebar-search {
   width: 100%;
   height: 38px;
-
   display: flex;
   align-items: center;
-
   gap: 8px;
-
   box-sizing: border-box;
-
   padding: 0 9px;
-
   margin-bottom: 12px;
-
   border-radius: 8px;
-
   background: var(--surface);
-
   color: var(--text-secondary);
 }
 
@@ -339,19 +220,12 @@
 
 .sidebar-search input {
   flex: 1;
-
   min-width: 0;
-
   height: 100%;
-
   border: none;
-
   outline: none;
-
   background: transparent;
-
   color: var(--text);
-
   font-size: 13px;
 }
 
@@ -361,47 +235,34 @@
 
 .sidebar-search input:disabled {
   cursor: not-allowed;
-
   opacity: 0.7;
 }
 
 .sidebar-search-clear {
   width: 24px;
   height: 24px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
   padding: 0;
-
   border: none;
-
   border-radius: 6px;
-
   background: transparent;
-
   color: var(--text-secondary);
-
   cursor: pointer;
 }
 
 .sidebar-search-clear:hover {
   background: var(--surface-hover);
-
   color: var(--text);
 }
 
 .sidebar.collapsed .sidebar-search {
   width: 48px;
-
   justify-content: center;
-
   margin-left: auto;
   margin-right: auto;
-
   padding: 0;
 }
 
@@ -410,19 +271,12 @@
   display: none;
 }
 
-/* =========================================================
-   Recent Chats
-   ========================================================= */
-
 .recent-chats-section {
   flex: 1;
-
   min-width: 0;
   min-height: 0;
-
   overflow-y: auto;
   overflow-x: hidden;
-
   scrollbar-width: thin;
 }
 
@@ -436,17 +290,13 @@
 
 .recent-chats-section::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
-
   border-radius: 10px;
 }
 
 .recent-chats-title {
   padding: 4px 10px 8px;
-
   font-size: 12px;
-
   font-weight: 500;
-
   color: var(--text-secondary);
 }
 
@@ -456,23 +306,16 @@
 
 .recent-chats-list {
   display: flex;
-
   flex-direction: column;
-
   gap: 2px;
 }
 
 .chat-item {
   position: relative;
-
   width: 100%;
-
   min-width: 0;
-
   display: flex;
-
   align-items: center;
-
   border-radius: 8px;
 }
 
@@ -486,79 +329,52 @@
 
 .chat-item-button {
   flex: 1;
-
   min-width: 0;
-
   height: 40px;
-
   display: flex;
   align-items: center;
-
   gap: 10px;
-
   padding: 0 10px;
-
   border: none;
-
   border-radius: 8px;
-
   background: transparent;
-
   color: var(--text);
-
   text-align: left;
-
   cursor: pointer;
 }
 
 .chat-item-button:disabled {
   cursor: not-allowed;
-
   opacity: 0.6;
 }
 
 .chat-item-button svg {
   flex-shrink: 0;
-
   color: var(--text-secondary);
 }
 
 .chat-title {
   min-width: 0;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
-
   white-space: nowrap;
-
   font-size: 14px;
 }
 
 .chat-delete-button {
   width: 32px;
   height: 32px;
-
   flex-shrink: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   margin-right: 4px;
-
   padding: 0;
-
   border: none;
-
   border-radius: 7px;
-
   background: transparent;
-
   color: var(--text-secondary);
-
   opacity: 0;
-
   cursor: pointer;
 }
 
@@ -568,7 +384,6 @@
 
 .chat-delete-button:hover:not(:disabled) {
   background: var(--surface-hover);
-
   color: var(--text);
 }
 
@@ -578,16 +393,13 @@
 
 .sidebar.collapsed .chat-item {
   width: 48px;
-
   margin-left: auto;
   margin-right: auto;
 }
 
 .sidebar.collapsed .chat-item-button {
   width: 48px;
-
   justify-content: center;
-
   padding: 0;
 }
 
@@ -599,19 +411,14 @@
 .no-chats {
   display: flex;
   align-items: center;
-
   gap: 10px;
-
   padding: 10px;
-
   color: var(--text-secondary);
-
   font-size: 13px;
 }
 
 .sidebar.collapsed .no-chats {
   justify-content: center;
-
   padding: 10px 0;
 }
 
@@ -619,29 +426,18 @@
   display: none;
 }
 
-/* =========================================================
-   Footer
-   ========================================================= */
-
 .sidebar-footer {
   position: relative;
-
   flex-shrink: 0;
-
   margin-top: 10px;
-
   padding-top: 10px;
-
   overflow: visible;
-
   border-top: 1px solid var(--border);
 }
 
 .sidebar-user {
   width: 100%;
-
   min-width: 0;
-
   display: flex;
   align-items: center;
 }
@@ -652,26 +448,16 @@
 
 .sidebar-user-profile-button {
   flex: 1;
-
   min-width: 0;
-
   height: 44px;
-
   display: flex;
   align-items: center;
-
   padding: 5px;
-
   border: none;
-
   border-radius: 8px;
-
   background: transparent;
-
   color: var(--text);
-
   text-align: left;
-
   cursor: pointer;
 }
 
@@ -681,32 +467,22 @@
 
 .sidebar.collapsed .sidebar-user-profile-button {
   flex: 0;
-
   width: 44px;
-
   justify-content: center;
-
   padding: 3px;
 }
 
 .sidebar-user-avatar {
   width: 34px;
   height: 34px;
-
   min-width: 34px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border-radius: 50%;
-
   background: #ef4444;
-
   color: #ffffff;
-
   font-size: 12px;
-
   font-weight: 500;
 }
 
@@ -717,34 +493,24 @@
 
 .sidebar-user-info {
   min-width: 0;
-
   display: flex;
   flex-direction: column;
-
   margin-left: 9px;
 }
 
 .sidebar-user-name {
   max-width: 150px;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
-
   white-space: nowrap;
-
   font-size: 14px;
-
   line-height: 18px;
 }
 
 .sidebar-user-theme-label {
   margin-top: 1px;
-
   font-size: 12px;
-
   line-height: 15px;
-
   color: var(--text-secondary);
 }
 
@@ -752,36 +518,23 @@
   display: none;
 }
 
-/* =========================================================
-   Theme Button
-   ========================================================= */
-
 .sidebar-theme-button {
   width: 34px;
   height: 34px;
-
   min-width: 34px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 0;
-
   border: none;
-
   border-radius: 8px;
-
   background: transparent;
-
   color: var(--text-secondary);
-
   cursor: pointer;
 }
 
 .sidebar-theme-button:hover {
   background: var(--surface-hover);
-
   color: var(--text);
 }
 
@@ -790,100 +543,63 @@
   display: none;
 }
 
-/* =========================================================
-   Logout
-   ========================================================= */
-
 .logout-button {
   width: 36px;
   height: 36px;
-
   min-width: 36px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 0;
-
   border: none;
-
   border-radius: 8px;
-
   background: transparent;
-
   color: var(--text-secondary);
-
   cursor: pointer;
 }
 
 .logout-button:hover:not(:disabled) {
   background: var(--surface-hover);
-
   color: var(--text);
 }
 
 .logout-button:disabled {
   opacity: 0.5;
-
   cursor: not-allowed;
 }
 
-/* =========================================================
-   Guest Sidebar
-   ========================================================= */
-
 .guest-sidebar-footer-card {
   margin-bottom: 10px;
-
   padding: 14px;
-
   border: 1px solid var(--border);
-
   border-radius: 10px;
-
   background: var(--surface);
 }
 
 .guest-sidebar-footer-title {
   margin-bottom: 6px;
-
   color: var(--text);
-
   font-size: 13px;
-
   font-weight: 600;
 }
 
 .guest-sidebar-footer-card p {
   margin: 0 0 12px;
-
   color: var(--text-secondary);
-
   font-size: 11px;
-
   line-height: 17px;
 }
 
 .guest-sidebar-footer-card button {
   width: 100%;
-
   height: 34px;
-
   border: 1px solid var(--input-border);
-
   border-radius: 7px;
-
   background: var(--input-background);
-
   color: var(--text);
-
   font-family: inherit;
-
   font-size: 12px;
-
   font-weight: 500;
-
   cursor: pointer;
 }
 
@@ -893,29 +609,23 @@
 
 .guest-sidebar-footer-card .guest-sidebar-signup-button {
   margin-top: 7px;
-
   border-color: var(--border);
-
   background: transparent;
-
   color: var(--text-secondary);
 }
 
 .guest-sidebar-footer-card .guest-sidebar-signup-button:hover {
   background: var(--surface-hover);
-
   color: var(--text);
 }
 
 .guest-sidebar-user {
   padding-top: 8px;
-
   border-top: 1px solid var(--border);
 }
 
 .guest-avatar {
   background: var(--surface-hover);
-
   color: var(--text);
 }
 
@@ -927,122 +637,80 @@
   display: none;
 }
 
-/* =========================================================
-   Collapsed Profile Menu
-   ========================================================= */
-
 .collapsed-profile-menu {
   position: absolute;
-
   left: calc(100% + 10px);
-
   bottom: 8px;
-
   width: 300px;
-
   box-sizing: border-box;
-
   padding: 16px;
-
   border-radius: 18px;
-
   background: #303030;
-
   border: 1px solid rgba(255, 255, 255, 0.08);
-
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
-
   z-index: 2000;
 }
 
 .profile-menu-header {
   display: flex;
   align-items: center;
-
   gap: 10px;
 }
 
 .profile-menu-avatar {
   width: 34px;
   height: 34px;
-
   min-width: 34px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border-radius: 50%;
-
   background: #ef4444;
-
   color: #ffffff;
-
   font-size: 12px;
-
   font-weight: 500;
 }
 
 .profile-menu-user {
   min-width: 0;
-
   display: flex;
   flex-direction: column;
 }
 
 .profile-menu-name {
   max-width: 220px;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
-
   white-space: nowrap;
-
   font-size: 14px;
-
   font-weight: 500;
-
   color: #ffffff;
 }
 
 .profile-menu-provider {
   margin-top: 2px;
-
   font-size: 13px;
-
   color: rgba(255, 255, 255, 0.6);
 }
 
 .profile-menu-divider {
   height: 1px;
-
   margin: 13px 0;
-
   background: rgba(255, 255, 255, 0.15);
 }
 
 .profile-menu-theme {
   width: 100%;
-
   min-height: 42px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   box-sizing: border-box;
-
   padding: 0 8px;
-
   border: none;
-
   border-radius: 8px;
-
   background: transparent;
-
   color: #ffffff;
-
   cursor: pointer;
 }
 
@@ -1053,46 +721,30 @@
 .profile-menu-theme-label {
   display: flex;
   align-items: center;
-
   gap: 12px;
-
   font-size: 14px;
 }
 
 .profile-menu-theme-state {
   font-size: 12px;
-
   color: rgba(255, 255, 255, 0.55);
 }
 
 .profile-menu-item {
   width: 100%;
-
   min-height: 42px;
-
   display: flex;
   align-items: center;
-
   gap: 12px;
-
   box-sizing: border-box;
-
   padding: 0 8px;
-
   margin-top: 4px;
-
   border: none;
-
   border-radius: 8px;
-
   background: transparent;
-
   color: #ffffff;
-
   font-size: 14px;
-
   text-align: left;
-
   cursor: pointer;
 }
 
@@ -1102,96 +754,66 @@
 
 .profile-menu-item:disabled {
   opacity: 0.5;
-
   cursor: not-allowed;
 }
 
-/* =========================================================
-   Delete Dialog
-   ========================================================= */
-
 .delete-chat-overlay {
   position: fixed;
-
   inset: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 20px;
-
   background: rgba(0, 0, 0, 0.55);
-
   z-index: 3000;
 }
 
 .delete-chat-dialog {
   width: min(400px, 100%);
-
   box-sizing: border-box;
-
   padding: 22px;
-
   border-radius: 14px;
-
   background: var(--surface);
-
   border: 1px solid var(--border);
-
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
 }
 
 .delete-chat-dialog h3 {
   margin: 0;
-
   color: var(--text);
-
   font-size: 18px;
 }
 
 .delete-chat-dialog p {
   margin: 8px 0 20px;
-
   color: var(--text-secondary);
-
   font-size: 14px;
 }
 
 .delete-chat-actions {
   display: flex;
-
   justify-content: flex-end;
-
   gap: 8px;
 }
 
 .delete-chat-cancel,
 .delete-chat-confirm {
   height: 36px;
-
   padding: 0 14px;
-
   border-radius: 8px;
-
   font-size: 14px;
-
   cursor: pointer;
 }
 
 .delete-chat-cancel {
   border: 1px solid var(--border);
-
   background: transparent;
-
   color: var(--text);
 }
 
 .delete-chat-confirm {
   border: none;
-
   background: #dc2626;
-
   color: #ffffff;
 }
 
@@ -1203,201 +825,142 @@
   background: #b91c1c;
 }
 
-/* =========================================================
-   Mobile
-   ========================================================= */
-
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   .sidebar {
     position: fixed;
-
     top: 0;
     left: 0;
     bottom: 0;
-
     width: min(300px, 86vw);
-
     height: 100dvh;
-
     min-height: 100dvh;
-
     padding: 10px;
-
     transform: translateX(-105%);
-
     transition:
       transform 0.25s ease,
       width 0.2s ease;
-
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.25);
-
     z-index: 1000;
   }
-
   .sidebar.mobile-open {
     transform: translateX(0);
   }
-
   .sidebar.collapsed {
     width: min(300px, 86vw);
-
     padding: 10px;
   }
-
   .sidebar-header {
     min-height: 58px;
-
     justify-content: flex-start;
   }
-
   .sidebar-brand {
     display: flex;
   }
-
   .sidebar-brand-name {
     font-size: 18px;
   }
-
   .sidebar-brand-subtitle {
     font-size: 8px;
   }
-
   .sidebar-collapse-button {
     display: none;
   }
-
   .sidebar-mobile-close {
     display: flex;
-
     margin-left: auto;
   }
-
   .sidebar-logo-button {
     display: none;
   }
-
   .sidebar.collapsed .sidebar-logo-button {
     display: none;
   }
-
   .sidebar-content {
     padding: 0;
   }
-
   .new-chat-button,
   .sidebar.collapsed .new-chat-button {
     width: 100%;
-
     justify-content: flex-start;
-
     margin-left: 0;
     margin-right: 0;
-
     padding: 9px 10px;
   }
-
   .new-chat-text,
   .sidebar.collapsed .new-chat-text {
     display: inline;
   }
-
   .sidebar-search,
   .sidebar.collapsed .sidebar-search {
     width: 100%;
-
     justify-content: flex-start;
-
     margin-left: 0;
     margin-right: 0;
-
     padding: 0 9px;
   }
-
   .sidebar-search input,
   .sidebar.collapsed .sidebar-search input {
     display: block;
   }
-
   .sidebar-search-clear {
     display: flex;
   }
-
   .recent-chats-title,
   .sidebar.collapsed .recent-chats-title {
     display: block;
   }
-
   .chat-item,
   .sidebar.collapsed .chat-item {
     width: 100%;
-
     margin-left: 0;
     margin-right: 0;
   }
-
   .chat-item-button,
   .sidebar.collapsed .chat-item-button {
     width: auto;
-
     justify-content: flex-start;
-
     padding: 0 10px;
   }
-
   .chat-title,
   .sidebar.collapsed .chat-title {
     display: block;
   }
-
   .chat-delete-button,
   .sidebar.collapsed .chat-delete-button {
     display: flex;
-
     opacity: 1;
   }
-
   .sidebar-user,
   .sidebar.collapsed .sidebar-user {
     justify-content: flex-start;
   }
-
   .sidebar-user-profile-button,
   .sidebar.collapsed .sidebar-user-profile-button {
     flex: 1;
-
     width: auto;
-
     height: 44px;
-
     justify-content: flex-start;
-
     padding: 5px;
   }
-
   .sidebar-user-avatar,
   .sidebar.collapsed .sidebar-user-avatar {
     width: 34px;
     height: 34px;
-
     min-width: 34px;
   }
-
   .sidebar-user-info,
   .sidebar.collapsed .sidebar-user-info {
     display: flex;
   }
-
   .sidebar-theme-button,
   .sidebar.collapsed .sidebar-theme-button,
   .sidebar-user > .logout-button,
   .sidebar.collapsed .sidebar-user > .logout-button {
     display: flex;
   }
-
   .collapsed-profile-menu {
     display: none;
   }
-
   .guest-sidebar-footer-card {
     display: block;
   }

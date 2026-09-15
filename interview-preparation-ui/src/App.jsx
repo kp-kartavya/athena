@@ -14,6 +14,8 @@ import Login from "./components/login/Login";
 import Signup from "./components/signup/Signup";
 import VerifyEmail from "./components/verifyEmail/VerifyEmail";
 import { initializeCsrf } from "./api/csrf";
+import { transferGuestChats } from "./api/recentChats";
+import { clearGuestSessionId } from "./api/guestSession";
 
 const STORAGE_KEY = "interview-bot-theme";
 
@@ -52,62 +54,133 @@ function AppContent() {
   };
 
   useEffect(() => {
+    console.log("Hi its kartavya");
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
+  // =========================================================
+  // APPLICATION INITIALIZATION
+  // =========================================================
+
   useEffect(() => {
+    let cancelled = false;
+
     const initializeApplication = async () => {
-      /*
-       * Initialize CSRF protection first.
-       *
-       * This ensures that the XSRF-TOKEN cookie exists before
-       * authenticated POST/DELETE requests are made.
-       *
-       * This is especially important after OAuth2 login because
-       * the browser returns to the application with a newly
-       * authenticated session.
-       */
+      // -------------------------------------------------------
+      // 1. Initialize CSRF
+      // -------------------------------------------------------
+
       try {
         await initializeCsrf();
       } catch (error) {
         console.error("Failed to initialize CSRF protection:", error);
       }
 
-      /* Determine whether the current browser session is authenticated. */
+      if (cancelled) {
+        return;
+      }
+
+      // -------------------------------------------------------
+      // 2. Check current authentication state
+      // -------------------------------------------------------
+
+      let authenticatedUser = null;
+
       try {
         const response = await fetch("/api/auth/me", {
           credentials: "include",
         });
 
         if (!response.ok) {
-          setAuthenticated(false);
-          setCurrentUser(null);
+          if (!cancelled) {
+            setAuthenticated(false);
+            setCurrentUser(null);
+          }
+
           return;
         }
 
         const data = await response.json();
 
-        setAuthenticated(data.authenticated);
+        if (!data.authenticated) {
+          if (!cancelled) {
+            setAuthenticated(false);
+            setCurrentUser(null);
+          }
 
-        if (data.authenticated) {
-          setCurrentUser({
-            name: data.name,
-            initial: data.initial,
-          });
-        } else {
-          setCurrentUser(null);
+          return;
         }
+
+        authenticatedUser = {
+          name: data.name,
+          initial: data.initial,
+        };
       } catch (error) {
         console.error("Failed to load current user:", error);
 
-        setAuthenticated(false);
-        setCurrentUser(null);
+        if (!cancelled) {
+          setAuthenticated(false);
+          setCurrentUser(null);
+        }
+
+        return;
       }
+
+      if (cancelled) {
+        return;
+      }
+
+      // -------------------------------------------------------
+      // 3. Transfer guest chats to authenticated account
+      // -------------------------------------------------------
+
+      try {
+        const guestSessionId = localStorage.getItem("athena_guest_session_id");
+
+        if (guestSessionId) {
+          const result = await transferGuestChats(guestSessionId);
+
+          console.log(
+            `Transferred ${
+              result?.transferredCount ?? 0
+            } guest chat(s) to the authenticated user.`,
+          );
+
+          // Only remove the guest session after the backend
+          // confirms the transfer request succeeded.
+          clearGuestSessionId();
+        }
+      } catch (error) {
+        console.error("Failed to transfer guest chats:", error);
+
+        // Important:
+        // Keep the guest session ID when transfer fails.
+        // A later application load can retry the transfer.
+      }
+
+      if (cancelled) {
+        return;
+      }
+
+      // -------------------------------------------------------
+      // 4. Now mark the application authenticated
+      // -------------------------------------------------------
+
+      setAuthenticated(true);
+      setCurrentUser(authenticatedUser);
     };
 
     initializeApplication();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  // =========================================================
+  // NAVIGATION
+  // =========================================================
 
   const handleSignup = () => {
     navigate("/signup");
@@ -139,18 +212,23 @@ function AppContent() {
     navigate("/login");
   };
 
+  // =========================================================
+  // LOADING STATE
+  // =========================================================
+  console.log("AUTHENTICATED STATE:", authenticated);
   if (authenticated === null) {
     return null;
   }
 
-  /*
-   * Authenticated users always enter the actual chat.
-   */
+  // =========================================================
+  // AUTHENTICATED APP
+  // =========================================================
+
   if (authenticated) {
     if (location.pathname !== "/chat") {
       return <Navigate to="/chat" replace />;
     }
-
+    console.log("🔥 AUTHENTICATED CHAT IS BEING RENDERED");
     return (
       <Chat
         theme={theme}
@@ -160,11 +238,15 @@ function AppContent() {
     );
   }
 
-  /* Guests cannot directly access the authenticated chat. */
+  // =========================================================
+  // GUEST APP
+  // =========================================================
+
   if (location.pathname === "/chat") {
     return <Navigate to="/" replace />;
   }
 
+  console.log("🔥 GUEST CHAT IS BEING RENDERED");
   return (
     <Routes>
       <Route

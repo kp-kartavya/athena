@@ -2,7 +2,11 @@ package com.interview.controller;
 
 import java.util.List;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +21,10 @@ import com.interview.service.ChatHistoryService;
 import com.interview.service.ChatService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/chats")
 @RequiredArgsConstructor
@@ -46,14 +53,33 @@ public class ChatHistoryController {
 		return chatHistoryService.createChat(title);
 	}
 
-	/* Add a user message and generate the assistant response. */
-	@PostMapping("/{chatId}/messages")
-	public Chat sendMessage(@PathVariable String chatId, @RequestParam String question,
+	/*
+	 * Add a user message and stream the assistant response.
+	 */
+	@PostMapping(value = "/{chatId}/messages", produces = MediaType.TEXT_PLAIN_VALUE)
+	public Flux<String> sendMessage(@PathVariable String chatId, @RequestParam String question,
 			@RequestParam(defaultValue = "false") boolean think) {
+		// Capture authentication while we are still on the request thread.
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 		chatHistoryService.addMessage(chatId, "user", question);
-		String answer = chatService.ask(question, think);
-		chatHistoryService.addMessage(chatId, "assistant", answer);
-		return chatHistoryService.getChat(chatId);
+
+		StringBuilder answerBuilder = new StringBuilder();
+
+		return chatService.askStream(question, think).doOnNext(answerBuilder::append).doOnComplete(() -> {
+			String answer = answerBuilder.toString();
+			SecurityContext context = SecurityContextHolder.createEmptyContext();
+			context.setAuthentication(authentication);
+			try {
+				SecurityContextHolder.setContext(context);
+				chatHistoryService.addMessage(chatId, "assistant", answer);
+				log.info("Saved streamed assistant response. chatId={}, length={}", chatId, answer.length());
+			} catch (Exception e) {
+				log.error("Failed to save streamed assistant response. chatId={}", chatId, e);
+			} finally {
+				SecurityContextHolder.clearContext();
+			}
+		});
 	}
 
 	/* Delete a conversation. */

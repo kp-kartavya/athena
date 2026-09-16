@@ -1,6 +1,7 @@
 package com.interview.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,11 +38,16 @@ public class ChatHistoryServiceImpl implements ChatHistoryService {
 
 	@Override
 	public Chat getChat(String chatId) {
+
 		User user = getCurrentUser();
 
-		return chatRepository.findById(chatId)
-				.filter(chat -> chat.getUser() != null && chat.getUser().getId().equals(user.getId()))
+		Chat chat = chatRepository.findById(chatId).filter(
+				existingChat -> existingChat.getUser() != null && existingChat.getUser().getId().equals(user.getId()))
 				.orElseThrow(() -> new IllegalArgumentException("Chat not found: " + chatId));
+
+		chat.getMessages().sort(Comparator.comparing(ChatMessage::getTimestamp));
+
+		return chat;
 	}
 
 	@Override

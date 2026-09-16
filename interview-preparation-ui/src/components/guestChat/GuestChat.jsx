@@ -15,7 +15,7 @@ import {
   getGuestChats,
   getGuestChat,
   createGuestChat,
-  sendGuestMessage,
+  sendGuestMessageStream,
 } from "../../api/recentChats";
 import { getGuestSessionId } from "../../api/guestSession";
 import { QUICK_QUESTIONS } from "../../utils/constants";
@@ -35,7 +35,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
   const [guestSessionId, setGuestSessionId] = useState(null);
   const [guestChats, setGuestChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
-  const [activeChat, setActiveChat] = useState(null);
   const [isChatsLoading, setIsChatsLoading] = useState(true);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -106,7 +105,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
 
       if (activeChatId === deletedChatId) {
         setActiveChatId(null);
-        setActiveChat(null);
         setMessages([]);
       }
     };
@@ -238,7 +236,7 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
       const chat = await getGuestChat(chatId, guestSessionId);
 
       setActiveChatId(chat.id);
-      setActiveChat(chat);
+      // setActiveChat(chat);
       setMessages(Array.isArray(chat.messages) ? chat.messages : []);
       setQuestion("");
       setThinkMode(false);
@@ -265,7 +263,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     }
 
     setActiveChatId(null);
-    setActiveChat(null);
     setMessages([]);
     setQuestion("");
     setError("");
@@ -292,7 +289,7 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
   };
 
   // =========================================================
-  // SEND MESSAGE
+  // SEND MESSAGE - STREAMING
   // =========================================================
 
   const handleSend = async () => {
@@ -309,7 +306,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     try {
       let chatId = activeChatId;
 
-      // Create a persistent guest chat on the first message.
       if (!chatId) {
         const newChat = await createGuestChat(
           trimmedQuestion.slice(0, 80),
@@ -319,19 +315,41 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
         chatId = newChat.id;
 
         setActiveChatId(chatId);
-        setActiveChat(newChat);
       }
 
-      const updatedChat = await sendGuestMessage(
+      const userMessage = {
+        id: `temp-user-${Date.now()}`,
+        role: "user",
+        content: trimmedQuestion,
+        timestamp: new Date().toISOString(),
+      };
+
+      const assistantMessage = {
+        id: `temp-assistant-${Date.now()}`,
+        role: "assistant",
+        content: "",
+        timestamp: new Date().toISOString(),
+      };
+
+      setMessages((previous) => [...previous, userMessage, assistantMessage]);
+
+      await sendGuestMessageStream(
         chatId,
         guestSessionId,
         trimmedQuestion,
         thinkMode,
-      );
-
-      setActiveChat(updatedChat);
-      setMessages(
-        Array.isArray(updatedChat.messages) ? updatedChat.messages : [],
+        (_chunk, fullResponse) => {
+          setMessages((previous) =>
+            previous.map((message) =>
+              message.id === assistantMessage.id
+                ? {
+                    ...message,
+                    content: fullResponse,
+                  }
+                : message,
+            ),
+          );
+        },
       );
 
       await refreshGuestChats(guestSessionId);
@@ -559,20 +577,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
                   </div>
                 </div>
               ))
-            )}
-
-            {isLoading && (
-              <div className="guest-message assistant-message">
-                <div className="guest-thinking">
-                  <span>Thinking</span>
-
-                  <span className="guest-thinking-dots">
-                    <span>.</span>
-                    <span>.</span>
-                    <span>.</span>
-                  </span>
-                </div>
-              </div>
             )}
 
             <div ref={messagesEndRef} />

@@ -16,6 +16,7 @@ import com.interview.util.PromptUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import tools.jackson.databind.ObjectMapper;
 
 /**
@@ -44,7 +45,6 @@ public class ChatServiceImpl implements ChatService {
 
 	@Override
 	public String ask(String question) {
-
 		return ask(question, false);
 	}
 
@@ -97,11 +97,9 @@ public class ChatServiceImpl implements ChatService {
 	@Override
 	public List<Document> search(String question) {
 		String normalizedQuestion = question.trim();
-
 		DocumentManifest manifest = loadManifest();
 
 		String matchedSection = findExactSection(normalizedQuestion, manifest.getSections());
-
 		if (matchedSection != null) {
 			log.info("Exact section match found.");
 			List<Document> exactDocuments = documentRetrievalService.similaritySearch(matchedSection, 1);
@@ -116,8 +114,59 @@ public class ChatServiceImpl implements ChatService {
 		List<Document> documents = documentRetrievalService.similaritySearch(normalizedQuestion, 2);
 
 		log.info("Semantic retrieval returned {} documents.", documents.size());
-
 		return documents;
+	}
+
+	@Override
+	public Flux<String> askStream(String question, boolean think) {
+
+		log.info("Processing streaming question. Think mode: {}", think);
+
+		if (think) {
+
+			boolean technical = questionGuardServiceImpl.isTechnicalQuestion(question);
+
+			if (!technical) {
+				log.info("Think mode rejected: non-technical question.");
+				return Flux.just("Think mode is only available for technical and coding-related questions.");
+			}
+
+			log.info("Think mode enabled for streaming.");
+
+			return chatClient.prompt().system(PromptUtil.THINK_MODE_PROMPT).user(question).stream().content();
+		}
+
+		List<Document> documents = search(question);
+
+		if (documents.isEmpty()) {
+			log.info("No relevant interview content found.");
+			return Flux.just("I can only answer questions covered by the interview material.");
+		}
+
+		String context = documents.stream().map(Document::getText).reduce("", (a, b) -> a + "\n\n" + b);
+
+		boolean handsOn = documents.stream()
+				.anyMatch(document -> "HANDS_ON".equals(document.getMetadata().get("type")));
+
+		if (handsOn) {
+
+			log.info("Generating hands-on solution using streaming.");
+
+			return chatClient.prompt().system(PromptUtil.ASK_PROMPT_HANDSON).user("""
+					Question:
+					%s
+					""".formatted(question)).stream().content();
+		}
+
+		log.info("Generating interview answer using retrieved context using streaming.");
+
+		return chatClient.prompt().system(PromptUtil.ASK_PROMPT).user("""
+				Context:
+				%s
+
+				Question:
+				%s
+				""".formatted(context, question)).stream().content();
 	}
 
 	private String findExactSection(String question, Map<String, String> sections) {

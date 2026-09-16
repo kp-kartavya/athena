@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   BrowserRouter,
   Navigate,
@@ -7,12 +8,15 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
+
 import "./App.css";
+
 import Chat from "./components/chat/Chat";
 import GuestChat from "./components/guestChat/GuestChat";
 import Login from "./components/login/Login";
 import Signup from "./components/signup/Signup";
 import VerifyEmail from "./components/verifyEmail/VerifyEmail";
+
 import { initializeCsrf } from "./api/csrf";
 import { transferGuestChats } from "./api/recentChats";
 import { clearGuestSessionId } from "./api/guestSession";
@@ -55,6 +59,7 @@ function AppContent() {
 
   useEffect(() => {
     console.log("Hi its kartavya");
+
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
@@ -85,8 +90,6 @@ function AppContent() {
       // 2. Check current authentication state
       // -------------------------------------------------------
 
-      let authenticatedUser = null;
-
       try {
         const response = await fetch("/api/auth/me", {
           credentials: "include",
@@ -112,10 +115,14 @@ function AppContent() {
           return;
         }
 
-        authenticatedUser = {
+        if (cancelled) {
+          return;
+        }
+
+        setCurrentUser({
           name: data.name,
           initial: data.initial,
-        };
+        });
       } catch (error) {
         console.error("Failed to load current user:", error);
 
@@ -154,7 +161,6 @@ function AppContent() {
       } catch (error) {
         console.error("Failed to transfer guest chats:", error);
 
-        // Important:
         // Keep the guest session ID when transfer fails.
         // A later application load can retry the transfer.
       }
@@ -168,7 +174,6 @@ function AppContent() {
       // -------------------------------------------------------
 
       setAuthenticated(true);
-      setCurrentUser(authenticatedUser);
     };
 
     initializeApplication();
@@ -215,7 +220,9 @@ function AppContent() {
   // =========================================================
   // LOADING STATE
   // =========================================================
+
   console.log("AUTHENTICATED STATE:", authenticated);
+
   if (authenticated === null) {
     return null;
   }
@@ -228,7 +235,9 @@ function AppContent() {
     if (location.pathname !== "/chat") {
       return <Navigate to="/chat" replace />;
     }
+
     console.log("🔥 AUTHENTICATED CHAT IS BEING RENDERED");
+
     return (
       <Chat
         theme={theme}
@@ -247,6 +256,7 @@ function AppContent() {
   }
 
   console.log("🔥 GUEST CHAT IS BEING RENDERED");
+
   return (
     <Routes>
       <Route

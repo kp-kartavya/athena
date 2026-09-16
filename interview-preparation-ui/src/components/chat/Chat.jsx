@@ -4,7 +4,7 @@ import { Menu } from "lucide-react";
 
 import Sidebar from "../sidebar/Sidebar";
 import Feedback from "../feedback/Feedback";
-import { getChat, createChat, sendMessage } from "../../api/recentChats";
+import { getChat, createChat, sendMessageStream } from "../../api/recentChats";
 import "./chat.css";
 import ThinkToggle from "../think/ThinkToggle";
 import ComposerExpandToggle from "../expand/ComposerExpandToggle";
@@ -144,20 +144,43 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
       }
 
       const userMessage = {
-        id: `temp-${Date.now()}`,
+        id: `temp-user-${Date.now()}`,
         role: "user",
         content: trimmedQuestion,
         timestamp: new Date().toISOString(),
       };
 
+      const assistantMessage = {
+        id: `temp-assistant-${Date.now()}`,
+        role: "assistant",
+        content: "",
+        timestamp: new Date().toISOString(),
+      };
+
       setActiveChat((prev) => ({
-        ...prev,
-        messages: [...(prev?.messages ?? []), userMessage],
+        ...(prev ?? {}),
+        messages: [...(prev?.messages ?? []), userMessage, assistantMessage],
       }));
 
-      const updatedChat = await sendMessage(chatId, trimmedQuestion, thinkMode);
+      await sendMessageStream(
+        chatId,
+        trimmedQuestion,
+        thinkMode,
+        (_chunk, fullResponse) => {
+          setActiveChat((prev) => ({
+            ...(prev ?? {}),
+            messages: (prev?.messages ?? []).map((message) =>
+              message.id === assistantMessage.id
+                ? {
+                    ...message,
+                    content: fullResponse,
+                  }
+                : message,
+            ),
+          }));
+        },
+      );
 
-      setActiveChat(updatedChat);
       setRefreshKey((prev) => prev + 1);
     } catch (error) {
       console.error("Error sending message:", error);
@@ -170,7 +193,7 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
       };
 
       setActiveChat((prev) => ({
-        ...prev,
+        ...(prev ?? {}),
         messages: [...(prev?.messages ?? []), errorMessage],
       }));
     } finally {
@@ -334,20 +357,6 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
                 </div>
               </div>
             ))
-          )}
-
-          {isLoading && (
-            <div className="message assistant-message">
-              <div className="thinking">
-                <span>Thinking</span>
-
-                <span className="thinking-dots">
-                  <span>.</span>
-                  <span>.</span>
-                  <span>.</span>
-                </span>
-              </div>
-            </div>
           )}
 
           <div ref={messagesEndRef} />

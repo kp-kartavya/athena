@@ -1,0 +1,27 @@
+.thinking-indicator {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 8px 0;
+}
+
+.thinking-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #3b82f6;
+  animation: thinking-breathe 1.5s ease-in-out infinite;
+}
+
+@keyframes thinking-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

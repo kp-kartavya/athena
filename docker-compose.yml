@@ -10,7 +10,7 @@ services:
       OLLAMA_CHAT_MODEL: qwen3:1.7b
       OLLAMA_EMBEDDING_MODEL: qwen3-embedding:0.6b
     volumes:
-      - ./interview-preparation-bot/data:/app/data
+      - ./backend/data:/app/data
 
   frontend:
     image: athena-frontend:1.0

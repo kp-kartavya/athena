@@ -28,35 +28,43 @@ const streamResponse = async (response, onChunk, errorMessage) => {
 
   let fullResponse = "";
 
-  while (true) {
-    const { value, done } = await reader.read();
+  try {
+    while (true) {
+      const { value, done } = await reader.read();
 
-    if (done) {
-      break;
-    }
+      if (done) {
+        break;
+      }
 
-    const chunk = decoder.decode(value, { stream: true });
+      const chunk = decoder.decode(value, { stream: true });
 
-    if (chunk) {
-      fullResponse += chunk;
+      if (chunk) {
+        fullResponse += chunk;
 
-      if (onChunk) {
-        onChunk(chunk, fullResponse);
+        if (onChunk) {
+          onChunk(chunk, fullResponse);
+        }
       }
     }
-  }
 
-  const remaining = decoder.decode();
+    const remaining = decoder.decode();
 
-  if (remaining) {
-    fullResponse += remaining;
+    if (remaining) {
+      fullResponse += remaining;
 
-    if (onChunk) {
-      onChunk(remaining, fullResponse);
+      if (onChunk) {
+        onChunk(remaining, fullResponse);
+      }
     }
-  }
 
-  return fullResponse;
+    return fullResponse;
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw error;
+    }
+
+    throw error;
+  }
 };
 
 export const getChats = async () => {
@@ -109,7 +117,13 @@ export const sendMessage = async (chatId, question, think) => {
   return handleResponse(response, "Failed to send message");
 };
 
-export const sendMessageStream = async (chatId, question, think, onChunk) => {
+export const sendMessageStream = async (
+  chatId,
+  question,
+  think,
+  onChunk,
+  signal,
+) => {
   const response = await fetch(
     `${BASE_URL}/api/chats/${chatId}/messages?question=${encodeURIComponent(
       question,
@@ -121,6 +135,7 @@ export const sendMessageStream = async (chatId, question, think, onChunk) => {
         ...getCsrfHeaders(),
       },
       credentials: "include",
+      signal,
     },
   );
 
@@ -212,6 +227,7 @@ export const sendGuestMessageStream = async (
   question,
   think,
   onChunk,
+  signal,
 ) => {
   const response = await fetch(
     `${BASE_URL}/api/guest/chats/${chatId}/messages?guestSessionId=${encodeURIComponent(
@@ -224,6 +240,7 @@ export const sendGuestMessageStream = async (
         ...getCsrfHeaders(),
       },
       credentials: "include",
+      signal,
     },
   );
 

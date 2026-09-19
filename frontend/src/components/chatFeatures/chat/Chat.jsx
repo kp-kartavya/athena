@@ -23,6 +23,7 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
   const [showFeedback, setShowFeedback] = useState(false);
   const [scrollRequestKey, setScrollRequestKey] = useState(0);
 
+  const abortControllerRef = useRef(null);
   const textareaRef = useRef(null);
 
   const messages = useMemo(
@@ -79,9 +80,9 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
 
     setQuestion(selectedQuestion);
 
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       textareaRef.current?.focus();
-    }, 0);
+    });
   };
 
   const handleSend = async () => {
@@ -90,6 +91,10 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
     if (!trimmedQuestion || isLoading) {
       return;
     }
+
+    const controller = new AbortController();
+
+    abortControllerRef.current = controller;
 
     setQuestion("");
     setIsLoading(true);
@@ -148,10 +153,16 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
             ),
           }));
         },
+        controller.signal,
       );
 
       setRefreshKey((previous) => previous + 1);
     } catch (error) {
+      if (error?.name === "AbortError") {
+        console.log("🛑 Response generation stopped by user.");
+        return;
+      }
+
       console.error("Error sending message:", error);
 
       const errorMessage = {
@@ -166,8 +177,17 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
         messages: [...(previous?.messages ?? []), errorMessage],
       }));
     } finally {
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null;
+      }
+
       setIsLoading(false);
     }
+  };
+
+  const handleStop = () => {
+    abortControllerRef.current?.abort();
+    setIsLoading(false);
   };
 
   const handleFeedback = () => {
@@ -284,6 +304,7 @@ const Chat = ({ theme, onToggleTheme, currentUser }) => {
           question={question}
           onQuestionChange={setQuestion}
           onSend={handleSend}
+          onStop={handleStop}
           isLoading={isLoading}
           thinkMode={thinkMode}
           onToggleThinkMode={() => setThinkMode((previous) => !previous)}

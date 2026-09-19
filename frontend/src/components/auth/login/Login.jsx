@@ -7,6 +7,7 @@ import ThemeToggle from "../../common/theme/ThemeToggle";
 import TurnstileWidget from "../../common/turnstile/TurnstileWidget";
 import LoadingWidget from "../../common/loading/LoadingWidget";
 import { getCsrfHeaders } from "../../../api/csrf";
+import ShowPassword from "../../common/showPassword/ShowPassword";
 
 function Login({
   theme,
@@ -271,12 +272,10 @@ function Login({
 
             {hasLocal && (
               <form onSubmit={handleLogin}>
-                <input
-                  type="password"
-                  className="auth-input"
-                  placeholder="Password"
+                <ShowPassword
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Password"
                   autoComplete="current-password"
                   autoFocus
                   disabled={loading}

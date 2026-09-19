@@ -4,9 +4,11 @@ import "./athena.css";
 import logo from "../../assets/athena-logo.png";
 import githubLogo from "../../assets/github.svg";
 import awsLogo from "../../assets/aws-icon.svg";
+import javaLogo from "../../assets/java.svg";
 
 // Presents Athena's purpose, architecture, technologies, and project link.
 const GITHUB_URL = "https://github.com/kp-kartavya/athena";
+const LINKEDIN_URL = "https://www.linkedin.com/in/kartavya-pandey-576b9a143/";
 
 const technologies = {
   Frontend: [
@@ -15,17 +17,20 @@ const technologies = {
     ["https://cdn.simpleicons.org/vite/646CFF", "Vite"],
     ["https://cdn.simpleicons.org/reactrouter/CA4245", "React Router"],
   ],
+
   Backend: [
-    ["https://cdn.simpleicons.org/openjdk/FFFFFF", "Java"],
+    [javaLogo, "Java"],
     ["https://cdn.simpleicons.org/springboot/6DB33F", "Spring Boot"],
     ["https://cdn.simpleicons.org/springsecurity/6DB33F", "Spring Security"],
     ["https://cdn.simpleicons.org/spring/6DB33F", "Spring AI"],
   ],
+
   "Data & AI": [
     ["https://cdn.simpleicons.org/postgresql/4169E1", "PostgreSQL"],
     ["https://cdn.simpleicons.org/postgresql/4169E1", "PGVector"],
     ["https://cdn.simpleicons.org/ollama/FFFFFF", "Ollama"],
   ],
+
   "Deployment & Infrastructure": [
     ["https://cdn.simpleicons.org/docker/2496ED", "Docker"],
     ["https://cdn.simpleicons.org/kubernetes/326CE5", "Kubernetes"],
@@ -45,6 +50,7 @@ function Athena() {
       </header>
 
       <main className="about-athena-content">
+        {/* Hero */}
         <section className="about-hero">
           <img src={logo} alt="Athena" className="about-athena-logo" />
 
@@ -56,18 +62,47 @@ function Athena() {
             A little wisdom from Olympus. A lot of questions from Java.
           </p>
 
-          <a
-            href={GITHUB_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="github-button"
-          >
-            <img src={githubLogo} alt="GitHub" className="about-github-icon" />
-            <span>View on GitHub</span>
-            <ExternalLink size={14} />
-          </a>
+          {/* GitHub + Developer */}
+          <div className="about-hero-actions">
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="github-button"
+            >
+              <img
+                src={githubLogo}
+                alt="GitHub"
+                className="about-github-icon"
+              />
+
+              <span>View on GitHub</span>
+
+              <ExternalLink size={14} />
+            </a>
+
+            <a
+              href={LINKEDIN_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="about-developer-card"
+            >
+              <span className="developer-code-icon">&lt;/&gt;</span>
+
+              <span className="developer-info">
+                <span className="developer-label">
+                  Built &amp; developed by
+                </span>
+
+                <span className="developer-name">Kartavya Pandey</span>
+              </span>
+
+              <span className="developer-link-icon">↗</span>
+            </a>
+          </div>
         </section>
 
+        {/* What is Athena / How it works */}
         <section className="about-section">
           <div className="about-intro">
             <div>
@@ -96,7 +131,9 @@ function Athena() {
               <div className="about-flow">
                 <div className="about-flow-step">
                   <span>01</span>
+
                   <strong>You ask</strong>
+
                   <p>Ask a technical question.</p>
                 </div>
 
@@ -104,7 +141,9 @@ function Athena() {
 
                 <div className="about-flow-step">
                   <span>02</span>
+
                   <strong>Athena thinks</strong>
+
                   <p>The backend sends it to the AI layer.</p>
                 </div>
 
@@ -112,7 +151,9 @@ function Athena() {
 
                 <div className="about-flow-step">
                   <span>03</span>
+
                   <strong>Athena answers</strong>
+
                   <p>The response streams back into the chat.</p>
                 </div>
               </div>
@@ -120,6 +161,7 @@ function Athena() {
           </div>
         </section>
 
+        {/* Technology Stack */}
         <section className="about-section">
           <h2>The technologies Athena is built on</h2>
 
@@ -134,7 +176,14 @@ function Athena() {
                       className="technology-item"
                       key={`${groupName}-${name}`}
                     >
-                      <img src={icon} alt={name} />
+                      <img
+                        src={icon}
+                        alt={name}
+                        className={`technology-icon technology-icon-${name
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                      />
+
                       <span>{name}</span>
                     </div>
                   ))}
@@ -142,13 +191,6 @@ function Athena() {
               </div>
             ))}
           </div>
-        </section>
-
-        <section className="about-footer">
-          <p>
-            Built with wisdom, strategy, and a slightly unreasonable number of
-            technical questions.
-          </p>
         </section>
       </main>
     </div>

@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, Sparkles, X } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+
 import "./guestChat.css";
 import "./authModal.css";
+
 import Sidebar from "../../common/sidebar/Sidebar";
 import Feedback from "../feedback/Feedback";
 import Login from "../../auth/login/Login";
@@ -10,6 +12,7 @@ import Signup from "../../auth/signup/Signup";
 import ChatMessages from "../chatMessages/ChatMessages";
 import QuickQuestions from "../../common/quickQuestions/QuickQuestions";
 import ChatComposer from "../composer/Composer";
+
 import {
   getGuestChats,
   getGuestChat,
@@ -38,16 +41,13 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
 
   const navigate = useNavigate();
 
+  const abortControllerRef = useRef(null);
   const textareaRef = useRef(null);
 
   const authModal = searchParams.get("auth");
 
   const isLoginModal = authModal === "login";
   const isSignupModal = authModal === "signup";
-
-  // =========================================================
-  // INITIALIZE GUEST SESSION + LOAD GUEST CHATS
-  // =========================================================
 
   useEffect(() => {
     let mounted = true;
@@ -89,10 +89,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     };
   }, []);
 
-  // =========================================================
-  // HANDLE GUEST CHAT DELETION
-  // =========================================================
-
   useEffect(() => {
     const handleGuestChatDeleted = (event) => {
       const deletedChatId = event.detail?.chatId;
@@ -126,10 +122,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     };
   }, [activeChatId]);
 
-  // =========================================================
-  // RESPONSIVE SIDEBAR
-  // =========================================================
-
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 640) {
@@ -143,10 +135,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
-  // =========================================================
-  // AUTH MODALS
-  // =========================================================
 
   const openLoginModal = () => {
     setSearchParams({ auth: "login" }, { replace: false });
@@ -168,27 +156,18 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     setSearchParams({ auth: "signup" }, { replace: true });
   };
 
-  // =========================================================
-  // REFRESH GUEST CHAT LIST
-  // =========================================================
-
   const refreshGuestChats = async (sessionId = guestSessionId) => {
     if (!sessionId) {
       return [];
     }
 
     const chats = await getGuestChats(sessionId);
-
     const normalizedChats = Array.isArray(chats) ? chats : [];
 
     setGuestChats(normalizedChats);
 
     return normalizedChats;
   };
-
-  // =========================================================
-  // SELECT GUEST CHAT
-  // =========================================================
 
   const handleSelectChat = async (chatId) => {
     if (!chatId || isLoading || !guestSessionId) {
@@ -203,9 +182,7 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
       const chat = await getGuestChat(chatId, guestSessionId);
 
       setActiveChatId(chat.id);
-
       setMessages(Array.isArray(chat.messages) ? chat.messages : []);
-
       setQuestion("");
       setThinkMode(false);
 
@@ -218,10 +195,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
       setIsLoading(false);
     }
   };
-
-  // =========================================================
-  // NEW CHAT
-  // =========================================================
 
   const handleNewChat = () => {
     if (isLoading) {
@@ -236,10 +209,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     setIsSidebarOpen(false);
   };
 
-  // =========================================================
-  // QUICK QUESTIONS
-  // =========================================================
-
   const handleQuickQuestion = (selectedQuestion) => {
     if (isLoading) {
       return;
@@ -252,16 +221,16 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     });
   };
 
-  // =========================================================
-  // SEND MESSAGE - STREAMING
-  // =========================================================
-
   const handleSend = async () => {
     const trimmedQuestion = question.trim();
 
     if (!trimmedQuestion || isLoading || !guestSessionId) {
       return;
     }
+
+    const controller = new AbortController();
+
+    abortControllerRef.current = controller;
 
     setQuestion("");
     setError("");
@@ -279,7 +248,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
         );
 
         chatId = newChat.id;
-
         setActiveChatId(chatId);
       }
 
@@ -316,21 +284,32 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
             ),
           );
         },
+        controller.signal,
       );
 
       await refreshGuestChats(guestSessionId);
     } catch (requestError) {
+      if (requestError?.name === "AbortError") {
+        console.log("🛑 Guest response generation stopped by user.");
+        return;
+      }
+
       console.error("Guest chat error:", requestError);
 
       setError(requestError.message || "Unable to connect to Athena.");
     } finally {
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null;
+      }
+
       setIsLoading(false);
     }
   };
 
-  // =========================================================
-  // FEEDBACK
-  // =========================================================
+  const handleStop = () => {
+    abortControllerRef.current?.abort();
+    setIsLoading(false);
+  };
 
   const handleFeedback = () => {
     if (isLoading) {
@@ -340,10 +319,6 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
     setIsSidebarOpen(false);
     setShowFeedback(true);
   };
-
-  // =========================================================
-  // RENDER
-  // =========================================================
 
   return (
     <div className="guest-app">
@@ -382,9 +357,10 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
               className="guest-about-header-button"
               onClick={() => navigate("/about")}
             >
+              <Sparkles size={14} />
               About Athena
             </button>
-            
+
             <button
               type="button"
               className="guest-login-header-button"
@@ -484,6 +460,7 @@ function GuestChat({ theme, onToggleTheme, onVerificationRequired }) {
             question={question}
             onQuestionChange={setQuestion}
             onSend={handleSend}
+            onStop={handleStop}
             isLoading={isLoading}
             thinkMode={thinkMode}
             onToggleThinkMode={() => setThinkMode((previous) => !previous)}

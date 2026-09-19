@@ -129,3 +129,115 @@
 .login-prompt button:hover {
   text-decoration: underline;
 }
+
+/* =========================================
+   Compact Signup Modal
+   ========================================= */
+
+.auth-modal .signup-page {
+  width: 100%;
+  min-height: auto;
+  height: auto;
+  background: transparent;
+  overflow: visible;
+}
+
+.auth-modal .signup-card {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 28px 32px;
+
+  border: none;
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+/* Logo */
+
+.auth-modal .signup-logo {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 10px;
+}
+
+/* Heading */
+
+.auth-modal .signup-card h1 {
+  font-size: 24px;
+}
+
+/* Subtitle */
+
+.auth-modal .signup-card p {
+  margin: 6px 0 18px;
+  font-size: 14px;
+}
+
+/* Inputs */
+
+.auth-modal .signup-card .auth-input {
+  height: 44px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+/* Password fields */
+
+.auth-modal .show-password-input {
+  height: 44px;
+}
+
+/* Turnstile */
+
+.auth-modal .turnstile-container {
+  margin: 6px 0 12px;
+  min-height: 60px;
+}
+
+/* Submit button */
+
+.auth-modal .continue-btn {
+  height: 44px;
+  font-size: 14px;
+}
+
+/* Login prompt */
+
+.auth-modal .login-prompt {
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+/* =========================================
+   Responsive
+   ========================================= */
+
+@media (max-width: 640px) {
+  .signup-card {
+    width: calc(100% - 32px);
+    padding: 32px 24px;
+  }
+
+  .signup-card h1 {
+    font-size: 24px;
+  }
+
+  .signup-logo {
+    width: 72px;
+    height: 72px;
+  }
+
+  .auth-modal .signup-card {
+    padding: 24px 20px;
+  }
+
+  .auth-modal .signup-logo {
+    width: 58px;
+    height: 58px;
+  }
+
+  .auth-modal .signup-card h1 {
+    font-size: 22px;
+  }
+}

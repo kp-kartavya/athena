@@ -1,7 +1,7 @@
 .auth-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 5000;
+  z-index: 1000;
 
   display: flex;
   align-items: center;
@@ -10,28 +10,30 @@
   padding: 24px;
 
   background: rgba(0, 0, 0, 0.68);
+  box-sizing: border-box;
 
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  overflow: hidden;
 }
 
 .auth-modal {
   position: relative;
 
-  width: min(440px, 100%);
-  max-height: calc(100vh - 48px);
+  width: 480px;
+  max-width: calc(100vw - 32px);
 
-  overflow-y: auto;
-
-  border-radius: 18px;
+  /*
+   * Do not scroll the modal itself.
+   * The signup content fits inside the viewport.
+   */
+  max-height: none;
+  height: auto;
+  overflow: visible;
 
   background: var(--surface);
-  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 16px;
 
-  /* Removed the glow/shadow behind the modal */
-  box-shadow: none;
-
-  animation: authModalAppear 0.18s ease-out;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 }
 
 .auth-modal-close {
@@ -39,10 +41,10 @@
   top: 14px;
   right: 14px;
 
-  z-index: 20;
+  z-index: 10;
 
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
 
   display: flex;
   align-items: center;
@@ -51,20 +53,16 @@
   padding: 0;
 
   border: none;
-  border-radius: 50%;
+  border-radius: 8px;
 
   background: transparent;
   color: var(--text-secondary);
 
   cursor: pointer;
-
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
 }
 
 .auth-modal-close:hover {
-  background: var(--input-background);
+  background: var(--surface-hover);
   color: var(--text);
 }
 
@@ -73,76 +71,45 @@
   outline-offset: 2px;
 }
 
-.auth-modal .login-page,
-.auth-modal .signup-page {
-  min-height: auto;
+/*
+ * Signup/Login are already responsible for their own layout.
+ * Remove page-height behavior when used inside the modal.
+ */
+.auth-modal .signup-page,
+.auth-modal .login-page {
   width: 100%;
-
-  display: block;
-
+  min-height: auto;
+  height: auto;
   background: transparent;
+  overflow: visible;
 }
 
-.auth-modal .login-theme-toggle,
-.auth-modal .signup-theme-toggle {
-  display: none;
+.auth-modal .signup-card,
+.auth-modal .login-card {
+  box-shadow: none;
+  border: none;
 }
 
-.auth-modal .login-card,
+/* Signup card is already sized by signup.css */
 .auth-modal .signup-card {
   width: 100%;
-  max-width: none;
-
-  min-height: auto;
-
-  margin: 0;
-
-  border: none;
-  border-radius: 18px;
-
-  box-shadow: none;
+  box-sizing: border-box;
 }
 
+/* Login card is already sized by login.css */
 .auth-modal .login-card {
-  padding: 38px 34px 32px;
+  box-sizing: border-box;
 }
 
-.auth-modal .signup-card {
-  padding: 38px 34px 32px;
-}
-
-.auth-modal .login-logo,
-.auth-modal .signup-logo {
-  width: 64px;
-  height: 64px;
-
-  margin-bottom: 12px;
-}
-
-@keyframes authModalAppear {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@media (max-width: 600px) {
+/* Smaller screens */
+@media (max-width: 640px) {
   .auth-modal-overlay {
-    padding: 12px;
+    padding: 16px;
+    align-items: center;
   }
 
   .auth-modal {
-    max-height: calc(100vh - 24px);
-    border-radius: 16px;
-  }
-
-  .auth-modal .login-card,
-  .auth-modal .signup-card {
-    padding: 36px 22px 26px;
+    width: 100%;
+    max-width: 100%;
   }
 }

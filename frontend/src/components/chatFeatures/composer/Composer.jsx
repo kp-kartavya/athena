@@ -5,9 +5,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { Send } from "lucide-react";
+import { Send, Square } from "lucide-react";
 import ThinkToggle from "../think/ThinkToggle";
 import ComposerExpandToggle from "../../common/expand/ComposerExpandToggle";
+import "./composer.css";
 
 const Composer = forwardRef(
   (
@@ -15,6 +16,7 @@ const Composer = forwardRef(
       question,
       onQuestionChange,
       onSend,
+      onStop,
       isLoading,
       thinkMode,
       onToggleThinkMode,
@@ -64,6 +66,15 @@ const Composer = forwardRef(
       }
     };
 
+    const handleButtonClick = () => {
+      if (isLoading) {
+        onStop?.();
+        return;
+      }
+
+      onSend();
+    };
+
     const inputAreaClass = isGuest ? "guest-input-area" : "input-area";
     const inputWrapperClass = isGuest ? "guest-input-wrapper" : "input-wrapper";
     const sendButtonClass = isGuest ? "guest-send-button" : "send-button";
@@ -106,21 +117,31 @@ const Composer = forwardRef(
 
           <button
             type="button"
-            className={sendButtonClass}
-            onClick={onSend}
-            disabled={isLoading || !question.trim() || !canSend}
-            aria-label="Send question"
-            title="Send question"
+            className={`${sendButtonClass} ${
+              isLoading ? "stop-generation-button" : ""
+            }`}
+            onClick={handleButtonClick}
+            disabled={!isLoading && (!question.trim() || !canSend)}
+            aria-label={isLoading ? "Stop generating" : "Send question"}
+            title={isLoading ? "Stop generating" : "Send question"}
           >
-            {isGuest ? <Send size={17} /> : "↑"}
+            {isLoading ? (
+              <Square size={16} fill="currentColor" />
+            ) : isGuest ? (
+              <Send size={17} />
+            ) : (
+              "↑"
+            )}
           </button>
         </div>
 
         <div className={inputHintClass}>
           {isGuest
-            ? "Enter to send · Shift + Enter for new line · Guest chats are saved on this browser"
+            ? isLoading
+              ? "Athena is responding · Click stop to cancel"
+              : "Enter to send · Shift + Enter for new line · Guest chats are saved on this browser"
             : isLoading
-              ? "Please wait for the response..."
+              ? "Athena is responding · Click stop to cancel"
               : "Enter to send · Shift + Enter for new line"}
         </div>
       </div>

@@ -20,8 +20,7 @@
 }
 
 .guest-login-header-button,
-.guest-signup-header-button,
-.guest-about-header-button {
+.guest-signup-header-button {
   height: 36px;
   padding: 0 15px;
   border-radius: 999px;
@@ -34,6 +33,57 @@
     border-color 0.15s ease,
     color 0.15s ease,
     transform 0.1s ease;
+}
+
+.guest-about-header-button {
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.guest-about-header-button svg {
+  flex-shrink: 0;
+  color: #b07a20;
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+[data-theme="dark"] .guest-about-header-button svg {
+  color: #d2a653;
+}
+
+.guest-about-header-button:hover {
+  background: var(--surface-hover);
+  border-color: var(--input-border);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.guest-about-header-button:hover svg {
+  color: #b07a20;
+  transform: scale(1.05);
+}
+
+[data-theme="dark"] .guest-about-header-button:hover svg {
+  color: #dfb765;
 }
 
 .guest-login-header-button {
@@ -54,18 +104,6 @@
 
 .guest-signup-header-button:hover {
   background: var(--surface-hover);
-}
-
-.guest-about-header-button {
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-secondary);
-}
-
-.guest-about-header-button:hover {
-  background: var(--surface-hover);
-  color: var(--text);
-  border-color: var(--input-border);
 }
 
 .guest-login-header-button:active,
@@ -131,28 +169,28 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 30px 20px 10px;
+  padding: 54px 20px 20px;
   box-sizing: border-box;
 }
 
 .guest-welcome h2 {
-  margin: 0 0 10px;
+  margin: 0 0 8px;
+  color: var(--text);
   font-size: 28px;
   font-weight: 600;
-  color: var(--text);
 }
 
 .guest-welcome p {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
   color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .guest-welcome-note {
   margin-top: 10px;
-  font-size: 12px;
   color: var(--text-secondary);
+  font-size: 12px;
 }
 
 .guest-message {
@@ -200,8 +238,6 @@
 .guest-message.assistant-message .guest-message-content table {
   text-align: left;
 }
-
-/* Markdown */
 
 .guest-message-content p {
   margin: 0 0 12px;
@@ -343,8 +379,6 @@
   left: auto;
 }
 
-/* Textarea */
-
 .guest-input-wrapper textarea {
   flex: 1;
   width: 100%;
@@ -435,113 +469,6 @@
   background: var(--scrollbar-thumb-hover);
 }
 
-@media (max-width: 640px) {
-  .guest-main-actions {
-    top: 10px;
-    right: 10px;
-    gap: 5px;
-  }
-
-  .guest-login-header-button,
-  .guest-signup-header-button,
-  .guest-about-header-button {
-    height: 32px;
-    padding: 0 11px;
-    font-size: 11px;
-  }
-
-  /* Sidebar becomes mobile overlay. */
-  .guest-sidebar-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    border: none;
-    z-index: 90;
-  }
-
-  .guest-mobile-menu-button {
-    display: flex;
-  }
-
-  .guest-messages {
-    padding: 64px 12px 20px;
-  }
-
-  .guest-welcome {
-    padding: 35px 12px 10px;
-  }
-
-  .guest-welcome h2 {
-    font-size: 23px;
-  }
-
-  .guest-welcome p {
-    font-size: 13px;
-  }
-
-  .guest-message {
-    max-width: 100%;
-  }
-
-  .guest-message.user-message .guest-message-content {
-    max-width: 88%;
-  }
-
-  .guest-message.assistant-message .guest-message-content {
-    max-width: 96%;
-  }
-
-  .guest-input-area {
-    padding: 8px 10px max(12px, env(safe-area-inset-bottom));
-  }
-
-  .guest-input-wrapper {
-    min-height: 52px;
-    padding: 6px 6px 6px 10px;
-    border-radius: 12px;
-    gap: 4px;
-  }
-
-  .guest-input-wrapper textarea {
-    min-height: 38px;
-    max-height: 120px;
-    padding: 9px 3px;
-    font-size: 14px;
-  }
-
-  .guest-send-button {
-    width: 36px;
-    height: 36px;
-  }
-
-  .guest-input-hint {
-    font-size: 9px;
-  }
-}
-
-@media (max-width: 480px) {
-  .guest-main-actions {
-    right: 8px;
-    gap: 4px;
-  }
-
-  .guest-login-header-button,
-  .guest-signup-header-button,
-  .guest-about-header-button {
-    padding: 0 9px;
-    font-size: 10px;
-  }
-
-  .guest-messages {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
-  .guest-input-hint {
-    display: none;
-  }
-}
-
 .quick-questions {
   width: 100%;
   max-width: 800px;
@@ -579,8 +506,6 @@
   font-size: 10px;
 }
 
-/* Category */
-
 .quick-question-category {
   margin-bottom: 18px;
 }
@@ -592,15 +517,11 @@
   font-weight: 600;
 }
 
-/* Question grid */
-
 .quick-question-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
-
-/* Individual question */
 
 .quick-question-button {
   width: 100%;
@@ -648,7 +569,9 @@
   flex-shrink: 0;
   color: var(--text-secondary);
   font-size: 14px;
-  transition: transform 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
 }
 
 .quick-question-button:hover:not(:disabled) .quick-question-arrow {
@@ -728,69 +651,9 @@
   font-size: 13px;
 }
 
-/*
- * Keep the initial screen compact.
- * Once the user starts chatting, .guest-messages
- * naturally becomes scrollable.
- */
-
 .guest-messages {
   padding-top: 74px;
   padding-bottom: 120px;
-}
-
-@media (max-width: 640px) {
-  .quick-questions {
-    margin-top: 22px;
-  }
-
-  .quick-question-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .quick-questions-header {
-    align-items: flex-start;
-  }
-
-  .quick-question-count {
-    margin-top: 2px;
-  }
-
-  .quick-question-button {
-    min-height: 42px;
-    font-size: 12px;
-  }
-
-  .think-mode-hint {
-    padding: 11px 12px;
-  }
-
-  .guest-welcome {
-    padding: 35px 12px 20px;
-  }
-
-  .guest-welcome h2 {
-    font-size: 23px;
-  }
-}
-
-@media (max-width: 480px) {
-  .quick-questions-header {
-    display: block;
-  }
-
-  .quick-question-count {
-    display: inline-block;
-    margin-top: 8px;
-  }
-
-  .quick-question-category {
-    margin-bottom: 16px;
-  }
-
-  .quick-question-button {
-    font-size: 11px;
-  }
 }
 
 .guest-message-content table {
@@ -835,4 +698,177 @@
 
 .guest-message-content table code {
   font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .guest-main-actions {
+    top: 10px;
+    right: 10px;
+    gap: 5px;
+  }
+
+  .guest-login-header-button,
+  .guest-signup-header-button {
+    height: 32px;
+    padding: 0 11px;
+    font-size: 11px;
+  }
+
+  .guest-about-header-button {
+    height: 32px;
+    padding: 0 9px;
+    gap: 5px;
+    font-size: 11px;
+  }
+
+  .guest-about-header-button svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .guest-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    border: none;
+    z-index: 90;
+  }
+
+  .guest-mobile-menu-button {
+    display: flex;
+  }
+
+  .guest-messages {
+    padding: 64px 12px 20px;
+  }
+
+  .guest-welcome {
+    padding: 35px 12px 20px;
+  }
+
+  .guest-welcome h2 {
+    font-size: 23px;
+  }
+
+  .guest-welcome p {
+    font-size: 13px;
+  }
+
+  .guest-message {
+    max-width: 100%;
+  }
+
+  .guest-message.user-message .guest-message-content {
+    max-width: 88%;
+  }
+
+  .guest-message.assistant-message .guest-message-content {
+    max-width: 96%;
+  }
+
+  .guest-input-area {
+    padding: 8px 10px max(12px, env(safe-area-inset-bottom));
+  }
+
+  .guest-input-wrapper {
+    min-height: 52px;
+    padding: 6px 6px 6px 10px;
+    border-radius: 12px;
+    gap: 4px;
+  }
+
+  .guest-input-wrapper textarea {
+    min-height: 38px;
+    max-height: 120px;
+    padding: 9px 3px;
+    font-size: 14px;
+  }
+
+  .guest-send-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .guest-input-hint {
+    font-size: 9px;
+  }
+
+  .quick-questions {
+    margin-top: 22px;
+  }
+
+  .quick-question-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-questions-header {
+    align-items: flex-start;
+  }
+
+  .quick-question-count {
+    margin-top: 2px;
+  }
+
+  .quick-question-button {
+    min-height: 42px;
+    font-size: 12px;
+  }
+
+  .think-mode-hint {
+    padding: 11px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .guest-main-actions {
+    right: 8px;
+    gap: 4px;
+  }
+
+  .guest-login-header-button,
+  .guest-signup-header-button {
+    padding: 0 9px;
+    font-size: 10px;
+  }
+
+  .guest-about-header-button {
+    padding: 0 8px;
+    gap: 4px;
+    font-size: 10px;
+  }
+
+  .guest-about-header-button svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .guest-messages {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .guest-input-hint {
+    display: none;
+  }
+
+  .quick-questions-header {
+    display: block;
+  }
+
+  .quick-question-count {
+    display: inline-block;
+    margin-top: 8px;
+  }
+
+  .quick-question-category {
+    margin-bottom: 16px;
+  }
+
+  .quick-question-button {
+    font-size: 11px;
+  }
+
+  .guest-welcome h2 {
+    font-size: 23px;
+  }
 }

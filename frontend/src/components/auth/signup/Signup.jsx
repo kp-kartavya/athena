@@ -4,6 +4,7 @@ import logo from "../../../assets/athena-logo.png";
 import ThemeToggle from "../../common/theme/ThemeToggle";
 import LoadingWidget from "../../common/loading/LoadingWidget";
 import { getCsrfHeaders } from "../../../api/csrf";
+import ShowPassword from "../../common/showPassword/ShowPassword";
 
 function Signup({
   theme,
@@ -48,7 +49,6 @@ function Signup({
 
         "error-callback": () => {
           setTurnstileToken("");
-
           setError("Security verification failed. Please try again.");
         },
       });
@@ -62,7 +62,6 @@ function Signup({
     const interval = setInterval(() => {
       if (window.turnstile) {
         clearInterval(interval);
-
         renderTurnstile();
       }
     }, 100);
@@ -72,7 +71,6 @@ function Signup({
 
       if (window.turnstile && widgetIdRef.current !== null) {
         window.turnstile.remove(widgetIdRef.current);
-
         widgetIdRef.current = null;
       }
     };
@@ -80,6 +78,7 @@ function Signup({
 
   const resetTurnstile = () => {
     setTurnstileToken("");
+
     if (window.turnstile && widgetIdRef.current !== null) {
       window.turnstile.reset(widgetIdRef.current);
     }
@@ -149,7 +148,6 @@ function Signup({
       });
     } catch {
       setError("Unable to connect to Athena.");
-
       resetTurnstile();
     } finally {
       setLoading(false);
@@ -168,7 +166,9 @@ function Signup({
 
       <div className="signup-card">
         <img src={logo} alt="Athena" className="signup-logo" />
+
         <h1>Create your account</h1>
+
         <p>Start preparing for your technical interviews.</p>
 
         <form onSubmit={handleSubmit}>
@@ -193,22 +193,18 @@ function Signup({
             disabled={loading}
           />
 
-          <input
-            type="password"
-            className="auth-input"
-            placeholder="Password"
+          <ShowPassword
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            placeholder="Password"
             autoComplete="new-password"
             disabled={loading}
           />
 
-          <input
-            type="password"
-            className="auth-input"
-            placeholder="Confirm password"
+          <ShowPassword
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
+            placeholder="Confirm password"
             autoComplete="new-password"
             disabled={loading}
           />
@@ -224,6 +220,7 @@ function Signup({
 
         <div className="login-prompt">
           <span>Already have an account?</span>
+
           <button type="button" onClick={onBackToLogin} disabled={loading}>
             Log in
           </button>

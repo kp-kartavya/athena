@@ -1,0 +1,8 @@
+.stop-generation-button {
+  background: var(--button-bg);
+  color: var(--button-text);
+}
+
+.stop-generation-button:hover:not(:disabled) {
+  opacity: 0.85;
+}

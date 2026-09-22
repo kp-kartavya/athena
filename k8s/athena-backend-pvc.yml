@@ -3,6 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: athena-backend-pvc
 spec:
+  storageClassName: athena-gp3
   accessModes:
     - ReadWriteOnce
   resources:
